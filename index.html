@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en-US">
+    <head>
+        <meta charset="UTF-8">
+        <title>OrbitalVis.js</title>
+        <link rel="stylesheet" type="text/css" href="style.css" />
+    </head>
+    <body>
+    <form action="" id="inputs" action="post">
+        <div id="form-grid">
+            <div id="select-cell">
+                <select id="model-select">
+                    <option value="none">--Select a model--</option>
+                    <option value="SN2">S<span style="vertical-align: sub">N</span>2</option>
+                </select>
+            </div>
+            <div id="attack-cell">
+                <input id="attack-button" type="button"
+                    value="Attack other side" disabled="y" />
+            </div>
+            <div id="slider-cell">
+                <input type="range" id="slider" min="0" max="1" step="any" 
+                    value="0" list="tickmarks"/>
+                <datalist id="tickmarks">
+                    <option value="0" />
+                    <option value="0.1" />
+                    <option value="0.2" />
+                    <option value="0.3" />
+                    <option value="0.4" />
+                    <option value="0.5" />
+                    <option value="0.6" />
+                    <option value="0.7" />
+                    <option value="0.8" />
+                    <option value="0.9" />
+                    <option value="1" />
+                </datalist>
+            </div>
+            <div id="rock-cell">
+                <input id="rock-button" type="button" value="Rock model" />
+            </div>
+        </div>
+    </form>
+    <div id="display-grid">
+        <div id="display-3D">
+            
+        </div>
+        <div id="display-2D">
+            
+        </div>
+    </div>
+    </body>
+</html>
