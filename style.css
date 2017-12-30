@@ -1,22 +1,53 @@
-/* Form grid */
-#form-grid {
+html {
     width: 100%;
-    display: grid;
-    grid-column-gap: 10px;
-    grid-template-columns: min-content min-content 1fr min-content;
+    height: 100%;
 }
-#select-cell {
-    grid-area: 1 / 1;
+
+body {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
 }
-#attack-cell {
-    grid-area: 1 / 2;
+
+form {
+    flex: initial;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
 }
+
+form > div {
+    flex: initial;
+    padding: 0px 3px;
+}
+
 #slider-cell {
-    grid-area: 1 / 3;
+    flex: auto;
 }
-#rock-cell {
-    grid-area: 1 / 4;
-}
+
 #slider {
     width: 100%;
 }
+
+#displays {
+    flex: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+#display-3D {
+    flex: auto;
+    border: thin solid blue;
+}
+
+#display-2D {
+    flex: auto;
+    border: thin solid green;
+}
+
+#svg-elt {
+    width: 100%;
+    height: 100%;
+}
+
