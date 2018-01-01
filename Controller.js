@@ -1,11 +1,31 @@
 /* global $ */
 /* global THREE */
+/* global makeModel */
+
+function setGeometry(props, renderer) {
+    if (props['layout'] === 'vertical') {
+        $('#displays').css('flex-direction', 'row');
+        $('#displays').find('*').width($('#displays').width()/2);
+        $('#displays').find('*').height($('#displays').height());
+    }
+    else { // horizontal, which is default
+        $('#displays').css('flex-direction', 'column');
+        $('#displays').find('*').width($('#displays').width());
+        $('#displays').find('*').height($('#displays').height()/2);
+    }
+    
+    renderer.setSize($('#display-3D').children().width(), 
+                     $('#display-3D').children().height());
+    // Adjust CSS element's viewport
+}
 
 function reshapeCamera(camera, props) {
     camera.fov = props['fov'];
-    var eyept = props['eye'];
+    let eyept = props['eye'];
     camera.position.set(eyept[0], eyept[1], eyept[2]);
-    camera.aspect = $('#display-3D').width() / $('#display-3D').height();
+    camera.lookAt(0, 0, 0);
+    camera.aspect = $('#display-3D').children().width() / 
+                    $('#display-3D').children().height();
     camera.near = props['near'];
     camera.far = props['far'];
     camera.updateProjectionMatrix();
@@ -13,45 +33,69 @@ function reshapeCamera(camera, props) {
 
 $(document).ready(function() {
     console.log('Doc ready');
-    //console.log(JSON.stringify($(document).data('properties')));
-    var properties = $(document).data('properties');
-    
-    var scene = new THREE.Scene();
-    scene.background = new THREE.Color( 0xff0000 );
-    
-    var reaction = '';
-    
-    var renderer = new THREE.WebGLRenderer();
+    let properties = $(document).data('properties');
+    console.log(properties);
+    let scene = new THREE.Scene();
+
+    let renderer = new THREE.WebGLRenderer();
+    renderer.setClearColor(new THREE.Color( 0.4, 0.4, 0.4 ), 1.0);
+    renderer.sortObjects = false;
     $('#display-3D').append(renderer.domElement);
-    renderer.domElement.style.setProperty('max-width', '100%');
-    renderer.domElement.style.setProperty('height', '100%');
     renderer.domElement.style.setProperty('border', 'thin dashed blue');
-    
-    var camera = new THREE.PerspectiveCamera(/*properties['default']['fov'],
-                                             $('#display-3D').width() / $('#display-3D').height(),
-                                             properties['default']['near'],
-                                             properties['default']['far']*/);
+
+    let camera = new THREE.PerspectiveCamera();
     camera.name = 'camera';
 
-    var changeReactionFn = function() {
-        
-        renderer.setSize($('#display-3D').width(), $('#display-3D').height());
-        // Set the appropriate geometry on the elements and call renderer.setSize()
-        // Clean out the scene's descendants
-        // Remake the model
+    let reaction = 'defaults';
+    let rockingAngle;
+    let t;
+
+    let changeReactionFn = function() {
+        setGeometry(properties[reaction], renderer);
         reshapeCamera(camera, properties[reaction]);
-        $(document).data('t', 0);
+        for (let child of scene.children) {
+            if (child.name !== 'camera') {
+                scene.remove(child);
+            }
+        }
+        scene.add(makeModel(reaction));
+        rockingAngle = properties[reaction]['rockingAngle'];
+        t = 0;
     };
+    changeReactionFn();
     
     $('#model-select').change(function(evt) {
-        reaction = evt.target.value;
-        changeReactionFn();
+        if (evt.target.value !== 'none') {
+            reaction = evt.target.value;
+            changeReactionFn();
+        }
+    });
+    
+    $('#slider').on('input', function() {
+        //console.log('slider val = ' + $('#slider').val());
+        scene.children[0].setT($('#slider').val());
+    });
+    
+    let rocking = false;
+    $('#rock-button').click(function() {
+        rocking = !rocking;
+        if (rocking) {
+            $('#rock-button').val('Stop rocking');
+        }
+        else {
+            $('#rock-button').val('Rock model');
+        }
     });
 
+    let rt = 0;
+    let dt = 0.04;
     function animate() {
         requestAnimationFrame( animate );
+        if (rocking === true) {
+            rt += dt;
+            scene.rotation.y = rockingAngle * Math.sin(rt);
+        }
         renderer.render( scene, camera );
-
     }
     animate();
 

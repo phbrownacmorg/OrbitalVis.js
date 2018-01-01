@@ -39,11 +39,15 @@ form > div {
 #display-3D {
     flex: auto;
     border: thin solid blue;
+    height: 50%;
+    width: 100%;
 }
 
 #display-2D {
     flex: auto;
     border: thin solid green;
+    height: 50%;
+    width: 100%;
 }
 
 #svg-elt {
