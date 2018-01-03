@@ -4,7 +4,8 @@ $(document).ready(function() {
     let props = {   defaults: { fov: 16, near: 5, far: 15,
                                 eye: [2.5, 2.5, 10], 
                                 rockingAngle: Math.PI / 12,
-                                layout: "horizontal" },
+                                layout: "horizontal",
+                                viewBox: "-5 -1 10 2"},
                     SN2:      { }
                 };
 

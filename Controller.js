@@ -3,20 +3,24 @@
 /* global makeModel */
 
 function setGeometry(props, renderer) {
+    let w; 
+    let h;
     if (props['layout'] === 'vertical') {
         $('#displays').css('flex-direction', 'row');
-        $('#displays').find('*').width($('#displays').width()/2);
-        $('#displays').find('*').height($('#displays').height());
+        w = $('#displays').width()/2;
+        h = $('#displays').height();
     }
     else { // horizontal, which is default
         $('#displays').css('flex-direction', 'column');
-        $('#displays').find('*').width($('#displays').width());
-        $('#displays').find('*').height($('#displays').height()/2);
+        w = $('#displays').width();
+        h = $('#displays').height()/2;
     }
-    
+    $('#displays').find('*').width(w);
+    $('#displays').find('*').height(h);
+    $('svg').attr('viewBox', props['viewBox']);
+
     renderer.setSize($('#display-3D').children().width(), 
                      $('#display-3D').children().height());
-    // Adjust CSS element's viewport
 }
 
 function reshapeCamera(camera, props) {
@@ -73,7 +77,7 @@ $(document).ready(function() {
     
     $('#slider').on('input', function() {
         //console.log('slider val = ' + $('#slider').val());
-        scene.children[0].setT($('#slider').val());
+        scene.children[0].setT($('#slider').val(), scene.quaternion.conjugate());
     });
     
     let rocking = false;

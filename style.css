@@ -50,8 +50,28 @@ form > div {
     width: 100%;
 }
 
-#svg-elt {
-    width: 100%;
-    height: 100%;
+text {
+    font-family: sans;
+    font-size: 2%;
+    stroke: none;
 }
 
+text.C {
+    fill: black;
+}
+
+text.H {
+    fill: gray;
+}
+
+text.O {
+    fill: red;
+}
+
+text.Cl {
+    fill: green;
+}
+}
+}
+}
+}
