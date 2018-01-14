@@ -52,8 +52,10 @@ form > div {
 
 text {
     font-family: sans;
-    font-size: 2%;
+    font-size: 200%;
     stroke: none;
+    text-anchor: middle;
+    baseline-shift: -36%;
 }
 
 text.C {
@@ -71,7 +73,20 @@ text.O {
 text.Cl {
     fill: green;
 }
+
+line {
+    stroke: black;
+    stroke-width: 3;
 }
+
+line.partial {
+    stroke-dasharray: 5, 5;
 }
+
+line.full {
+    stroke-dasharray: none;
 }
+
+line.broken {
+    stroke: none;
 }

@@ -62,7 +62,7 @@ $(document).ready(function() {
                 scene.remove(child);
             }
         }
-        scene.add(makeModel(reaction));
+        scene.add(makeModel(properties[reaction]));
         rockingAngle = properties[reaction]['rockingAngle'];
         t = 0;
     };
