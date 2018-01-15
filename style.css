@@ -63,7 +63,7 @@ text.C {
 }
 
 text.H {
-    fill: gray;
+    fill: grey;
 }
 
 text.O {
@@ -74,19 +74,20 @@ text.Cl {
     fill: green;
 }
 
-line {
-    stroke: black;
+path {
+    stroke: rgb(25%, 25%, 25%);
+    fill: rgb(25%, 25%, 25%);
     stroke-width: 3;
 }
 
-line.partial {
+path.partial {
     stroke-dasharray: 5, 5;
 }
 
-line.full {
+path.full {
     stroke-dasharray: none;
 }
 
-line.broken {
+path.broken {
     stroke: none;
 }

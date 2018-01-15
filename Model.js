@@ -15,9 +15,12 @@ function makeAtomMaterial(name) {
     } );
 }
 
-const Z_2D_SCALE = 0.4;
+const Z_2D_SCALE = -0.4;  // Probably only works for eye.x > 0
 function vec3To2D(v) {
-    return new THREE.Vector2(v.x + Math.sign(v.x) * Z_2D_SCALE * v.z, v.y);
+    // Warped parallel projection
+    let result = new THREE.Vector2(v.x + Z_2D_SCALE * v.z, -v.y);
+    result.z = v.z;
+    return result;
 }
 
 // Bond states
@@ -26,18 +29,19 @@ const PARTIAL = 0.5;
 const FULL = 1;
 const FULL_PARTIAL = 1.5;
 const DOUBLE = 2;
-const BOND_LENGTH_FACTOR = 0.8;
-const WEDGE_LENGTH_FACTOR = 0.7;
+const BOND_LENGTH_FACTOR = 0.3; // Open space at the beginning of the bond
+const WEDGE_LENGTH_FACTOR = 0.3; // Open space at the beginning of the bond
+const WEDGE_WIDTH = 4;
 class Bond extends THREE.Group {
     constructor(end1, end2, bond_state) {
         super();
         this.start = end1;
         this.end = end2;
         this.g = document.createElementNS("http://www.w3.org/2000/svg", 'g');
-        this.line1 = document.createElementNS("http://www.w3.org/2000/svg", 'line');
-        this.g.appendChild(this.line1);
-        this.line2 = document.createElementNS("http://www.w3.org/2000/svg", 'line');
-        this.g.appendChild(this.line2);
+        this.path1 = document.createElementNS("http://www.w3.org/2000/svg", 'path');
+        this.g.appendChild(this.path1);
+        this.path2 = document.createElementNS("http://www.w3.org/2000/svg", 'path');
+        this.g.appendChild(this.path2);
         this.setState(bond_state);
     }
     
@@ -46,24 +50,24 @@ class Bond extends THREE.Group {
         this.bond_state = newState;
         switch (this.bond_state) {
             case BROKEN:
-                this.line1.setAttribute('class', 'broken');
-                this.line2.setAttribute('class', 'broken');
+                this.path1.setAttribute('class', 'broken');
+                this.path2.setAttribute('class', 'broken');
                 break;
             case PARTIAL:
-                this.line1.setAttribute('class', 'partial');
-                this.line2.setAttribute('class', 'broken');
+                this.path1.setAttribute('class', 'partial');
+                this.path2.setAttribute('class', 'broken');
                 break;
             case FULL:
-                this.line1.setAttribute('class', 'full');
-                this.line2.setAttribute('class', 'broken');
+                this.path1.setAttribute('class', 'full');
+                this.path2.setAttribute('class', 'broken');
                 break;
             case FULL_PARTIAL:
-                this.line1.setAttribute('class', 'partial');
-                this.line2.setAttribute('class', 'full');
+                this.path1.setAttribute('class', 'partial');
+                this.path2.setAttribute('class', 'full');
                 break;
             case DOUBLE:
-                this.line1.setAttribute('class', 'full');
-                this.line2.setAttribute('class', 'full');
+                this.path1.setAttribute('class', 'full');
+                this.path2.setAttribute('class', 'full');
                 break;
         }
     }
@@ -74,19 +78,36 @@ class Bond extends THREE.Group {
         if (this.bond_state !== BROKEN) {
             let pt1 = this.start.get2DPos(revQuat);
             let pt2 = this.end.get2DPos(revQuat);
-
-            // Calculation in the plane
-            let start = new THREE.Vector2(pt2.x, pt2.y);
-            start.lerp(pt1, BOND_LENGTH_FACTOR);
-            let end = new THREE.Vector2(pt1.x, pt1.y);
-            end.lerp(pt2, BOND_LENGTH_FACTOR);
-            if (this.bond_state === PARTIAL || this.bond_state === FULL) {
-                this.line1.setAttribute('x1', start.x);
-                this.line1.setAttribute('y1', -start.y);
-                this.line1.setAttribute('x2', end.x);
-                this.line1.setAttribute('y2', -end.y);
+            let start = pt1.clone().lerp(pt2, BOND_LENGTH_FACTOR);
+            let end = pt2.clone().lerp(pt1, BOND_LENGTH_FACTOR);
+            let diff = end.clone().sub(start);
+            //console.log("Z's: " + pt1.z + ' ' + pt2.z);
+            this.g.setAttribute('transform', 'rotate(' + 
+                                THREE.Math.radToDeg(diff.angle()) +
+                                ' ' + start.x + ' ' + start.y + ')');
+            // Are we in the plane?
+            if (Math.abs(pt1.z - pt2.z) < 1) {
+                // Calculation in the plane
+                if (this.bond_state === PARTIAL || this.bond_state === FULL) {
+                    this.path1.setAttribute('d', 
+                                            'M' + start.x + ',' + start.y +
+                                            ' h' + diff.length());
+                }
+                // Fill in the double-bond calcs later
             }
-            // Fill in the double-bond calcs later
+            else { // Do the wedge
+                if (this.bond_state === FULL) {
+                    this.path1.setAttribute('d',
+                                            'M' + start.x +',' + start.y +
+                                            'l' + diff.length() + ',' 
+                                                + WEDGE_WIDTH + ' ' +
+                                            'v' + (-2 * WEDGE_WIDTH) + ' Z');
+                    
+                }
+                else {
+                    console.log('ERROR: non-single bond outside the plane');
+                }
+            }
         }
     }
 }
@@ -115,7 +136,7 @@ class AtomGroup extends THREE.Group {
     update2D(revQuat) {
         const textPos = this.get2DPos(revQuat);
         this.textElt.setAttribute('x', textPos.x);
-        this.textElt.setAttribute('y', -(textPos.y));
+        this.textElt.setAttribute('y', textPos.y);
     }
 }
 
@@ -239,7 +260,6 @@ function makeSN2() {
     model.needsUpdates.push(oh);
     
     let carb = new SP3Atom('C');
-    //carb.rotateY(Math.PI);
     model.add(carb);
     model.needsUpdates.push(carb);
     
