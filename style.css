@@ -76,7 +76,6 @@ text.Cl {
 
 path {
     stroke: rgb(25%, 25%, 25%);
-    /*fill: rgb(25%, 25%, 25%);*/
     stroke-width: 3;
 }
 
@@ -93,10 +92,16 @@ path.broken {
 }
 
 path.backslant {
-    fill: url(index.html#backSlant);
-    stroke: none;
+    fill: url(#backSlant);
+    stroke-width: 0;
+}
+
+path.frontslant {
+    fill: rgb(25%, 25%, 25%);
+    stroke-width: 0;
 }
 
 #backSlant path {
-    fill: green;
+    fill: rgb(25%, 25%, 25%);
+    stroke: none;
 }
