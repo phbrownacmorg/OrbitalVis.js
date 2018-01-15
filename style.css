@@ -51,7 +51,7 @@ form > div {
 }
 
 text {
-    font-family: sans;
+    font-family: sans-serif;
     font-size: 200%;
     stroke: none;
     text-anchor: middle;
@@ -76,7 +76,7 @@ text.Cl {
 
 path {
     stroke: rgb(25%, 25%, 25%);
-    fill: rgb(25%, 25%, 25%);
+    /*fill: rgb(25%, 25%, 25%);*/
     stroke-width: 3;
 }
 
@@ -90,4 +90,13 @@ path.full {
 
 path.broken {
     stroke: none;
+}
+
+path.backslant {
+    fill: url(index.html#backSlant);
+    stroke: none;
+}
+
+#backSlant path {
+    fill: green;
 }

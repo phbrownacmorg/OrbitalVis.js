@@ -47,8 +47,24 @@
             <div id="display-3D">
             </div>
             <div id="display-2D">
+                <defs>
+                    <pattern id="pattern1" x="10" y="10" width="20" height="20"
+                        patternUnits="userSpaceOnUse" >
+                      <circle cx="10" cy="10" r="10" style="stroke: none; fill: #0000ff" />
+                    </pattern>
+
+                    <!--pattern id="backSlant" x="10" y="10" width="20" height="20" patternUnits="userSpaceOnUse">
+                        <path d="M0,0 h10 v10 h-10 Z" fill="green"/>
+                        <circle cx="10" cy="10" r="10" style="stroke: none; fill=#0000ff"; />
+                    </pattern-->
+                </defs>
                 <svg id="svg-elt">
-                    <g id="svg-xfm" transform="scale(1, 1)"></g>
+                    <g id="svg-xfm" transform="scale(1, 1)">
+                        <!--path d="M0,0 h100 v100 h-100 Z" fill="url(#backSlant)" /-->
+                        <!--rect x="-1" y="-1" width="1" height="1"  /-->
+                        <rect x="10" y="10" width="100" height="100"
+                            style="stroke: #000000; fill: url(#pattern1);" />
+                    </g>
                 </svg>
             </div>
         </div>

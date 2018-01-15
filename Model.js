@@ -29,6 +29,8 @@ const PARTIAL = 0.5;
 const FULL = 1;
 const FULL_PARTIAL = 1.5;
 const DOUBLE = 2;
+const BACK_SLANT = -2;
+const FRONT_SLANT = -1;
 const BOND_LENGTH_FACTOR = 0.3; // Open space at the beginning of the bond
 const WEDGE_LENGTH_FACTOR = 0.3; // Open space at the beginning of the bond
 const WEDGE_WIDTH = 4;
@@ -69,6 +71,14 @@ class Bond extends THREE.Group {
                 this.path1.setAttribute('class', 'full');
                 this.path2.setAttribute('class', 'full');
                 break;
+            case BACK_SLANT: // Full bond slanted away from the viewer
+                this.path1.setAttribute('class', 'backslant');
+                this.path2.setAttribute('class', 'broken');
+                break;
+            case FRONT_SLANT: // Full bond slanted towards the viewer
+                this.path1.setAttribute('class', 'frontslant');
+                this.path2.setAttribute('class', 'broken');
+                break;
         }
     }
     
@@ -85,28 +95,19 @@ class Bond extends THREE.Group {
             this.g.setAttribute('transform', 'rotate(' + 
                                 THREE.Math.radToDeg(diff.angle()) +
                                 ' ' + start.x + ' ' + start.y + ')');
-            // Are we in the plane?
-            if (Math.abs(pt1.z - pt2.z) < 1) {
-                // Calculation in the plane
-                if (this.bond_state === PARTIAL || this.bond_state === FULL) {
-                    this.path1.setAttribute('d', 
-                                            'M' + start.x + ',' + start.y +
-                                            ' h' + diff.length());
-                }
-                // Fill in the double-bond calcs later
+
+            // Calculation in the plane
+            if (this.bond_state === PARTIAL || this.bond_state === FULL) {
+                this.path1.setAttribute('d', 
+                                        'M' + start.x + ',' + start.y +
+                                        ' h' + diff.length());
             }
-            else { // Do the wedge
-                if (this.bond_state === FULL) {
-                    this.path1.setAttribute('d',
-                                            'M' + start.x +',' + start.y +
-                                            'l' + diff.length() + ',' 
-                                                + WEDGE_WIDTH + ' ' +
-                                            'v' + (-2 * WEDGE_WIDTH) + ' Z');
-                    
-                }
-                else {
-                    console.log('ERROR: non-single bond outside the plane');
-                }
+            // Fill in the double-bond calcs later
+            else if ((this.bond_state === BACK_SLANT) || (this.bond_state === FRONT_SLANT)) {
+                this.path1.setAttribute('d',
+                                        'M' + start.x +',' + start.y + ' ' +
+                                        'l' + diff.length() + ',' + WEDGE_WIDTH + ' ' +
+                                        'v' + (-2 * WEDGE_WIDTH) + ' Z');
             }
         }
     }
@@ -270,7 +271,8 @@ function makeSN2() {
         let hydro = makeSAtom('H');
         carb.addToOrbital(i, hydro, S_RADIUS);
         model.needsUpdates.push(hydro);
-        let carb_hydro = new Bond(carb, hydro, FULL);
+        let bond_states = [undefined, FULL, BACK_SLANT, FRONT_SLANT];
+        let carb_hydro = new Bond(carb, hydro, bond_states[i]);
         model.needsUpdates.push(carb_hydro);
     }
     
