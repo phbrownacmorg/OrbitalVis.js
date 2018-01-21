@@ -104,4 +104,6 @@ path.frontslant {
 #backSlant path {
     fill: rgb(25%, 25%, 25%);
     stroke: none;
+    /*stroke: black;
+    stroke-width: 0.01;*/
 }
