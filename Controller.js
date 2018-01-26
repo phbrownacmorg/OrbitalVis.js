@@ -55,6 +55,8 @@ $(document).ready(function() {
     let t;
 
     let changeReactionFn = function() {
+        console.log(reaction);
+        console.log(properties[reaction]);
         setGeometry(properties[reaction], renderer);
         reshapeCamera(camera, properties[reaction]);
         for (let child of scene.children) {

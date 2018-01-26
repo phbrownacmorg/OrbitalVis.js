@@ -8,6 +8,10 @@ $(document).ready(function() {
                                 layout: "horizontal",
                                 viewBox: "-500 -100 1000 200",
                                 Scale2D: [100, 100, 40] },
+                    "Acyl-L":    { reaction: "Acyl-L",
+                                layout: "vertical"},
+                    "Acyl-R":    { reaction: "Acyl-R",
+                                layout: "vertical"},
                     SN2:      { reaction: 'SN2'}
                 };
 
@@ -19,6 +23,7 @@ $(document).ready(function() {
             }
         }
     }
+    //console.log(props);
     
     $(document).data('properties', props);
 });                    

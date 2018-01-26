@@ -330,11 +330,24 @@ function makeSN2() {
     return model;
 }
 
+function makeAcyl(props) {
+    let model = new THREE.Group();
+    model.needsUpdates = new Array();
+    model.attackSide = props['reaction'].charAt(5); // 'L' or 'R'
+    model.add(new THREE.AxesHelper(100));
+    return model;
+}
+
+
 function makeModel(props) {
     let model;
     switch(props['reaction']) {
         case 'SN2':
             model = makeSN2(props);
+            break;
+        case 'Acyl-L':
+        case 'Acyl-R':
+            model = makeAcyl(props);
             break;
         default:
             model = new THREE.AxesHelper(100);
