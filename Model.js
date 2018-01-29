@@ -149,11 +149,17 @@ function makeSAtom(name) {
     return atom;
 }
 
+// Half the minimum central angle of a POrbital's cone
+const MIN_CENTRAL_ANGLE = THREE.Math.degToRad(15); 
+// Half the maximum central angle of a POrbital's cone
+const MAX_CENTRAL_ANGLE = THREE.Math.degToRad(60);
+
+
 class POrbital extends THREE.Group {
-    constructor(lobeProportion, material) {
+    constructor(lobeProportion, divergence, material) {
         super();
         this.proportion = lobeProportion;
-
+        
         this.lobe0 = POrbital.makeHalfPOrbital(1.0 - lobeProportion, material);
         this.add(this.lobe0);
         
@@ -161,6 +167,14 @@ class POrbital extends THREE.Group {
         this.lobe1.position.set(-50 * lobeProportion, 0, 0);
         this.lobe1.rotateZ(Math.PI);
         this.add(this.lobe1);
+        
+        this.setDivergence(divergence);
+    }
+    
+    setDivergence(newD) {
+        this.centralAngle = THREE.Math.lerp(MIN_CENTRAL_ANGLE, MAX_CENTRAL_ANGLE, newD);
+        console.log(THREE.Math.radToDeg(this.centralAngle));
+        this.updatePositionsScales();
     }
     
     addOnEnd(obj, extraDist) {
@@ -169,14 +183,24 @@ class POrbital extends THREE.Group {
     }
     
     setLobeProportion(newProp) {
-        this.lobe1.position.set(-50 * newProp, 0, 0);
-        this.lobe1.scale.set(newProp, newProp, newProp);
-        this.lobe0.position.set(50 * (1 - newProp), 0, 0);
-        this.lobe0.scale.set(1 - newProp, 1 - newProp, 1 - newProp);
+        this.proportion = newProp;
+        this.updatePositionsScales();
+    }
+    
+    updatePositionsScales() {
+        let divergenceFactor = Math.tan(this.centralAngle) / Math.tan(MIN_CENTRAL_ANGLE);
+        let prop = this.proportion;
+        if (this.centralAngle !== MIN_CENTRAL_ANGLE) {
+            console.log(divergenceFactor, prop);
+        }
+        this.lobe1.position.set(-50 * prop, 0, 0);
+        this.lobe1.scale.set(prop * divergenceFactor, prop, prop);
+        this.lobe0.position.set(50 * (1 - prop), 0, 0);
+        this.lobe0.scale.set((1 - prop) * divergenceFactor, (1 - prop), 1 - prop);        
     }
     
     static makeHalfPOrbital(scalingFactor, material) {
-        const R = 100 * Math.asin(Math.PI / 12);
+        const R = 100 * Math.tan(MIN_CENTRAL_ANGLE);
         const SEGS = 64;
         let geom = new THREE.ConeGeometry(R, 100, SEGS, 1, false);
         let cone = new THREE.Mesh(geom, material);
@@ -185,17 +209,18 @@ class POrbital extends THREE.Group {
         let cap = new THREE.Mesh(geom, material);
         cap.translateY(-50);
         cone.add(cap);
-        cone.position.set(50 * scalingFactor, 0, 0);
         cone.rotateZ(Math.PI/2);
-        cone.scale.set(scalingFactor, scalingFactor, scalingFactor);
         return cone;
-    }
-    
+    }   
 }
 
 // Proportion of the volume of orbital 0 in the (initially) small lobe
-const DEFAULT_LOBE_PROP = 1/3; 
+const DEFAULT_LOBE_PROP = 1/3;
+const MIN_DIVERGENCE = 0;
+const MAX_DIVERGENCE = 1;
 const RELAXED_ANGLE = Math.acos(-1/3.0);
+const S_SP3_BOND_LENGTH = 100 * (1 - DEFAULT_LOBE_PROP) + S_RADIUS;
+const SP3_SP3_BOND_LENGTH = 100 * (1 - DEFAULT_LOBE_PROP);  // Why only 100?
 
 class SP3Atom extends AtomGroup {
     constructor(name) {
@@ -204,9 +229,9 @@ class SP3Atom extends AtomGroup {
         const material = makeAtomMaterial(name);
         this.insideOutness = 0;  // in [0, 1]
         
-        this.orbitals = new Array();
+        this.orbitals = [];
         for (let i = 0; i < 4; i++) {
-            this.orbitals.push(new POrbital(DEFAULT_LOBE_PROP, material));
+            this.orbitals.push(new POrbital(DEFAULT_LOBE_PROP, MIN_DIVERGENCE, material));
         }
 
         this.setZeroOneAngle(RELAXED_ANGLE);
@@ -218,6 +243,10 @@ class SP3Atom extends AtomGroup {
     
     addToOrbital(i, obj, extraDistance) {
         this.orbitals[i].addOnEnd(obj, extraDistance);
+    }
+    
+    setP0Divergence(newD) {
+        this.orbitals[0].setDivergence(newD);
     }
     
     setInsideOutness(newProp) {
@@ -251,11 +280,11 @@ function makeHydroxide() {
 
 function makeSN2() {
     let model = new THREE.Group();
-    model.needsUpdates = new Array();
+    model.needsUpdates = [];
     
     let oh = makeHydroxide();
-    oh.start = new THREE.Vector3(-200 * (1 - DEFAULT_LOBE_PROP) - 100, 0, 0);
-    oh.end = new THREE.Vector3(-200 * (1 - DEFAULT_LOBE_PROP), 0, 0);
+    oh.start = new THREE.Vector3(-2 * SP3_SP3_BOND_LENGTH - 100, 0, 0);
+    oh.end = new THREE.Vector3(-2 * SP3_SP3_BOND_LENGTH, 0, 0);
     oh.position.copy(oh.start);
     model.add(oh);
     model.needsUpdates.push(oh);
@@ -277,8 +306,8 @@ function makeSN2() {
     }
     
     let chlor = new SP3Atom("Cl");
-    chlor.start = new THREE.Vector3(200 * (1 - DEFAULT_LOBE_PROP), 0, 0);
-    chlor.end = new THREE.Vector3(200 * (1 - DEFAULT_LOBE_PROP) + 100, 0, 0);
+    chlor.start = new THREE.Vector3(2 * SP3_SP3_BOND_LENGTH, 0, 0);
+    chlor.end = new THREE.Vector3(2 * SP3_SP3_BOND_LENGTH + 100, 0, 0);
     chlor.position.copy(chlor.start);
     chlor.rotateY(Math.PI);
     model.add(chlor);
@@ -332,8 +361,49 @@ function makeSN2() {
 
 function makeAcyl(props) {
     let model = new THREE.Group();
-    model.needsUpdates = new Array();
-    model.attackSide = props['reaction'].charAt(5); // 'L' or 'R'
+    model.needsUpdates = [];
+    model.attackSide = props.reaction.charAt(5); // 'L' or 'R'
+    model.xSign = 1; // 'R'
+    if (props.reaction.charAt(5) === 'L') {
+        model.xSign = -1;
+    }
+    
+    let nucleophile = makeSAtom('H');
+    nucleophile.start = new THREE.Vector3(model.xSign * (S_SP3_BOND_LENGTH + 80), 0, 0);
+    nucleophile.end = new THREE.Vector3(model.xSign * S_SP3_BOND_LENGTH, 0, 0);
+    nucleophile.position.copy(nucleophile.start);
+    model.add(nucleophile);
+    model.needsUpdates.push(nucleophile);
+    
+    let carb = new SP3Atom('C');
+    carb.setInsideOutness(0.5);
+    carb.setP0Divergence(1);
+    carb.rotateX(Math.PI);
+    model.add(carb);
+    model.needsUpdates.push(carb);
+
+    model.t = 0;
+    model.setT = function(newT, revQuat) {
+        model.t = newT;
+        // Set the angles betwen the carbon's orbitals, and the proportion of its center orbital
+        let insideOutnessOffset = -model.xSign * 
+            Math.max(0, Math.min(0.5, ((0.5/0.6) * (newT - 0.3))));
+        let insideOutness = 0.5 + insideOutnessOffset;
+        let divergence = 1.0 - (4 * (insideOutness - 0.5) * (insideOutness - 0.5));
+        carb.setInsideOutness(insideOutness);
+        carb.setP0Divergence(divergence);
+
+        
+        // nucleophile moves in
+        nucleophile.position.lerpVectors(nucleophile.end, nucleophile.start, 
+                                         Math.max(0, 0.8 - newT)/0.8);
+        
+        // Atoms/groups need to be updated before their bonds
+        for (let item of model.needsUpdates) {
+            item.update2D(revQuat);
+        }
+    }
+    
     model.add(new THREE.AxesHelper(100));
     return model;
 }
@@ -341,7 +411,7 @@ function makeAcyl(props) {
 
 function makeModel(props) {
     let model;
-    switch(props['reaction']) {
+    switch(props.reaction) {
         case 'SN2':
             model = makeSN2(props);
             break;

@@ -64,6 +64,7 @@ $(document).ready(function() {
                 scene.remove(child);
             }
         }
+        $('#svg-xfm').empty();
         scene.add(makeModel(properties[reaction]));
         rockingAngle = properties[reaction]['rockingAngle'];
         t = 0;

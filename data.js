@@ -8,20 +8,28 @@ $(document).ready(function() {
                                 layout: "horizontal",
                                 viewBox: "-500 -100 1000 200",
                                 Scale2D: [100, 100, 40] },
-                    "Acyl-L":    { reaction: "Acyl-L",
-                                layout: "vertical"},
-                    "Acyl-R":    { reaction: "Acyl-R",
-                                layout: "vertical"},
+                    Acyl:     { layout: "vertical",
+                                fov: 40 },
+                    "Acyl-L": { reaction: "Acyl-L" },
+                    "Acyl-R": { reaction: "Acyl-R" },
                     SN2:      { reaction: 'SN2'}
                 };
 
-    // Copy default properties to every other mechanism, except where overridden
-    for (const reaction in props) {
-        for (const key in props['defaults']) {
+    function provideDefaults(baseKey, reaction) {
+        for (const key in props[baseKey]) {
             if (!(key in props[reaction])) {
-                props[reaction][key] = props['defaults'][key];
+                props[reaction][key] = props[baseKey][key];
             }
         }
+    }
+    
+    // Copy default properties to every other mechanism, except where overridden
+    for (const reaction in props) {
+        if (reaction.endsWith('-L') || reaction.endsWith('-R')) {
+            let base = reaction.substring(0, reaction.length - 2);
+            provideDefaults(base, reaction);
+        }
+        provideDefaults('defaults', reaction);
     }
     //console.log(props);
     
