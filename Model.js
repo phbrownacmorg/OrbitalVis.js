@@ -123,6 +123,7 @@ class AtomGroup extends THREE.Group {
             this.textElt.setAttribute('class', name);
             this.textElt.setAttribute('x', '0');
             this.textElt.setAttribute('y', '0');
+            //console.log('Creating 2D for ' + name + ": " + this.textElt.toString());
         }
     }
     
@@ -142,8 +143,8 @@ class AtomGroup extends THREE.Group {
 }
 
 const S_RADIUS = 25;
-function makeSAtom(name) {
-    let atom = new AtomGroup(name);
+function makeSAtom(name, text=name) {
+    let atom = new AtomGroup(text);
     let geom = new THREE.SphereGeometry(S_RADIUS, 64, 64);
     atom.add(new THREE.Mesh(geom, makeAtomMaterial(name)));
     return atom;
@@ -173,7 +174,7 @@ class POrbital extends THREE.Group {
     
     setDivergence(newD) {
         this.centralAngle = THREE.Math.lerp(MIN_CENTRAL_ANGLE, MAX_CENTRAL_ANGLE, newD);
-        console.log(THREE.Math.radToDeg(this.centralAngle));
+        //console.log(THREE.Math.radToDeg(this.centralAngle));
         this.updatePositionsScales();
     }
     
@@ -190,9 +191,9 @@ class POrbital extends THREE.Group {
     updatePositionsScales() {
         let divergenceFactor = Math.tan(this.centralAngle) / Math.tan(MIN_CENTRAL_ANGLE);
         let prop = this.proportion;
-        if (this.centralAngle !== MIN_CENTRAL_ANGLE) {
-            console.log(divergenceFactor, prop);
-        }
+        //if (this.centralAngle !== MIN_CENTRAL_ANGLE) {
+            //console.log(divergenceFactor, prop);
+        //}
         this.lobe1.position.set(-50 * prop, 0, 0);
         this.lobe1.scale.set(prop * divergenceFactor, prop, prop);
         this.lobe0.position.set(50 * (1 - prop), 0, 0);
@@ -223,8 +224,8 @@ const S_SP3_BOND_LENGTH = 100 * (1 - DEFAULT_LOBE_PROP) + S_RADIUS;
 const SP3_SP3_BOND_LENGTH = 100 * (1 - DEFAULT_LOBE_PROP);  // Why only 100?
 
 class SP3Atom extends AtomGroup {
-    constructor(name) {
-        super(name);
+    constructor(name, text=name) {
+        super(text);
         
         const material = makeAtomMaterial(name);
         this.insideOutness = 0;  // in [0, 1]
@@ -269,66 +270,71 @@ class SP3Atom extends AtomGroup {
     }
 }
 
-function makeHydroxide() {
-    let oxy = new SP3Atom('O');
-    let hydro = makeSAtom('H');
-    oxy.addToOrbital(1, hydro, S_RADIUS);
-    hydro.get2DElt().innerHTML = '';
-    oxy.get2DElt().innerHTML = 'HO';
+function makeHydroxide(text = 'OH') {
+    const oxy = new SP3Atom('O', text);
+    oxy.addToOrbital(1, makeSAtom('H', ''), S_RADIUS);
     return oxy;
 }
 
+function makeMethyl(text = 'CH3') {
+    const carb = new SP3Atom('C', text);
+    for (let i = 1; i < 4; i++) {
+        carb.addToOrbital(i, makeSAtom('H', ''), S_RADIUS);
+    }
+    return carb;
+}
+
+function makeEthyl(text = 'CH2CH3') {
+    const carb = new SP3Atom('C', text);
+    const methyl = makeMethyl('');
+    methyl.setInsideOutness(1.0);
+    //methyl.add(new THREE.AxesHelper(100));
+    methyl.rotateX(Math.PI);
+    carb.addToOrbital(1, methyl, SP3_SP3_BOND_LENGTH);
+    for (let i = 2; i < 4; i++) {
+        carb.addToOrbital(i, makeSAtom('H', ''), S_RADIUS);
+    }
+    return carb;
+}
+
 function makeSN2() {
-    let model = new THREE.Group();
+    const model = new THREE.Group();
     model.needsUpdates = [];
     
-    let oh = makeHydroxide();
+    const oh = makeHydroxide();
     oh.start = new THREE.Vector3(-2 * SP3_SP3_BOND_LENGTH - 100, 0, 0);
     oh.end = new THREE.Vector3(-2 * SP3_SP3_BOND_LENGTH, 0, 0);
     oh.position.copy(oh.start);
     model.add(oh);
     model.needsUpdates.push(oh);
     
-    let carb = new SP3Atom('C');
+    const carb = new SP3Atom('C');
     model.add(carb);
     model.needsUpdates.push(carb);
     
-    let carb_oh = new Bond(carb, oh, BROKEN);
+    const carb_oh = new Bond(carb, oh, BROKEN);
     model.needsUpdates.push(carb_oh);
     
     for (let i = 1; i < 4; i++) {
-        let hydro = makeSAtom('H');
+        const hydro = makeSAtom('H');
         carb.addToOrbital(i, hydro, S_RADIUS);
         model.needsUpdates.push(hydro);
-        let bond_states = [undefined, FULL, BACK_SLANT, FRONT_SLANT];
-        let carb_hydro = new Bond(carb, hydro, bond_states[i]);
+        const bond_states = [undefined, FULL, BACK_SLANT, FRONT_SLANT];
+        const carb_hydro = new Bond(carb, hydro, bond_states[i]);
         model.needsUpdates.push(carb_hydro);
     }
     
-    let chlor = new SP3Atom("Cl");
+    const chlor = new SP3Atom("Cl");
     chlor.start = new THREE.Vector3(2 * SP3_SP3_BOND_LENGTH, 0, 0);
     chlor.end = new THREE.Vector3(2 * SP3_SP3_BOND_LENGTH + 100, 0, 0);
     chlor.position.copy(chlor.start);
     chlor.rotateY(Math.PI);
     model.add(chlor);
     
-    let carb_chlor = new Bond(carb, chlor, FULL);
+    const carb_chlor = new Bond(carb, chlor, FULL);
     model.needsUpdates.push(chlor);
     model.needsUpdates.push(carb_chlor);
     
-    for (let item of model.needsUpdates) {
-        // Bonds should really be added to the DOM first, so they lie behind the
-        //    atoms/groups
-        let elt = item.get2DElt();
-        if (elt.tagName == 'text') {
-            $('#svg-xfm').append(elt);
-        }
-        else {
-            $('#svg-xfm').prepend(elt);
-        }
-        item.update2D(new THREE.Quaternion());
-    }
-
     model.t = 0;
     model.setT = function(newT, revQuat) {
         model.t = newT;
@@ -360,7 +366,7 @@ function makeSN2() {
 }
 
 function makeAcyl(props) {
-    let model = new THREE.Group();
+    const model = new THREE.Group();
     model.needsUpdates = [];
     model.attackSide = props.reaction.charAt(5); // 'L' or 'R'
     model.xSign = 1; // 'R'
@@ -368,35 +374,77 @@ function makeAcyl(props) {
         model.xSign = -1;
     }
     
-    let nucleophile = makeSAtom('H');
+    const nucleophile = makeSAtom('H');
     nucleophile.start = new THREE.Vector3(model.xSign * (S_SP3_BOND_LENGTH + 80), 0, 0);
     nucleophile.end = new THREE.Vector3(model.xSign * S_SP3_BOND_LENGTH, 0, 0);
     nucleophile.position.copy(nucleophile.start);
     model.add(nucleophile);
     model.needsUpdates.push(nucleophile);
     
-    let carb = new SP3Atom('C');
+    const carb = new SP3Atom('C');
     carb.setInsideOutness(0.5);
     carb.setP0Divergence(1);
     carb.rotateX(Math.PI);
     model.add(carb);
     model.needsUpdates.push(carb);
+    
+    const oxy = new SP3Atom('O');
+    oxy.setInsideOutness(0.5);
+    oxy.setP0Divergence(1);
+    oxy.add(new THREE.AxesHelper(100));
+    oxy.rotation.z = -Math.PI/2;
+    carb.addToOrbital(1, oxy, SP3_SP3_BOND_LENGTH);
+    model.needsUpdates.push(oxy);
+    
+    const ethyl = makeEthyl();
+    ethyl.setInsideOutness(1.0);
+    ethyl.rotateX(1.5 * RELAXED_ANGLE + 0.25 * Math.PI);
+    carb.addToOrbital(2, ethyl, SP3_SP3_BOND_LENGTH);
+    model.needsUpdates.push(ethyl);
+        
+    const ch3 = makeMethyl();
+    //ch3.add(new THREE.AxesHelper(30));
+    ch3.setInsideOutness(1.0);
+    ch3.rotateX(1.5 * RELAXED_ANGLE + 0.25 * Math.PI);  // Roll an H straight down
+    carb.addToOrbital(3, ch3, SP3_SP3_BOND_LENGTH);
+    model.needsUpdates.push(ch3);
+
+    // Add the bonds
+    const nucleophile_carb = new Bond(nucleophile, carb, BROKEN);
+    model.needsUpdates.push(nucleophile_carb);
+    const carb_ethyl = new Bond(carb, ethyl, BACK_SLANT);
+    model.needsUpdates.push(carb_ethyl);
+    const carb_ch3 = new Bond(carb, ch3, FRONT_SLANT);
+    model.needsUpdates.push(carb_ch3);
 
     model.t = 0;
     model.setT = function(newT, revQuat) {
         model.t = newT;
         // Set the angles betwen the carbon's orbitals, and the proportion of its center orbital
-        let insideOutnessOffset = -model.xSign * 
+        const insideOutnessOffset = -model.xSign * 
             Math.max(0, Math.min(0.5, ((0.5/0.6) * (newT - 0.3))));
-        let insideOutness = 0.5 + insideOutnessOffset;
-        let divergence = 1.0 - (4 * (insideOutness - 0.5) * (insideOutness - 0.5));
+        const insideOutness = 0.5 + insideOutnessOffset;
+        const divergence = 1.0 - (4 * (insideOutness - 0.5) * (insideOutness - 0.5));
         carb.setInsideOutness(insideOutness);
         carb.setP0Divergence(divergence);
-
+        oxy.setInsideOutness(insideOutness);
+        oxy.setP0Divergence(divergence);
+        oxy.rotation.z = -Math.PI/2 - (Math.PI/2 - oxy.zeroOneAngle);
         
         // nucleophile moves in
         nucleophile.position.lerpVectors(nucleophile.end, nucleophile.start, 
                                          Math.max(0, 0.8 - newT)/0.8);
+        
+        // Update the bond states
+        if (model.t < 0.3) {
+            nucleophile_carb.setState(BROKEN);
+        }
+        else if (model.t > 0.5) {
+            nucleophile_carb.setState(FULL);
+        }
+        else {
+            nucleophile_carb.setState(PARTIAL);
+        }
         
         // Atoms/groups need to be updated before their bonds
         for (let item of model.needsUpdates) {
@@ -421,6 +469,21 @@ function makeModel(props) {
             break;
         default:
             model = new THREE.AxesHelper(100);
+            model.needsUpdates = [];
     }
+    
+    for (let item of model.needsUpdates) {
+        // Bonds should really be added to the DOM first, so they lie behind the
+        //    atoms/groups
+        const elt = item.get2DElt();
+        if (elt.tagName == 'text') {
+            $('#svg-xfm').append(elt);
+        }
+        else {
+            $('#svg-xfm').prepend(elt);
+        }
+        item.update2D(new THREE.Quaternion());
+    }
+    
     return model;
 }

@@ -52,7 +52,6 @@ $(document).ready(function() {
 
     let reaction = 'defaults';
     let rockingAngle;
-    let t;
 
     let changeReactionFn = function() {
         console.log(reaction);
@@ -100,8 +99,8 @@ $(document).ready(function() {
         requestAnimationFrame( animate );
         if (rocking === true) {
             rt += dt;
-            scene.rotation.y = rockingAngle * Math.sin(rt);
         }
+        scene.rotation.y = rockingAngle * Math.sin(rt);
         renderer.render( scene, camera );
     }
     animate();
