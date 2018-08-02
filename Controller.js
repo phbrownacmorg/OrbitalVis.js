@@ -45,7 +45,7 @@ $(document).ready(function() {
     renderer.setClearColor(new THREE.Color( 0.4, 0.4, 0.4 ), 1.0);
     renderer.sortObjects = false;
     $('#display-3D').append(renderer.domElement);
-    renderer.domElement.style.setProperty('border', 'thin dashed blue');
+    //renderer.domElement.style.setProperty('border', 'thin dashed blue');
 
     let camera = new THREE.PerspectiveCamera();
     camera.name = 'camera';

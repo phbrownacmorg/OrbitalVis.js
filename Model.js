@@ -15,10 +15,11 @@ function makeAtomMaterial(name) {
     } );
 }
 
-const Z_2D_SCALE = -0.4;  // Probably only works for eye.x > 0
+const Z_2D_SCALE = -0.5;  // Probably only works for eye.x > 0
 function vec3To2D(v) {
-    // Warped parallel projection
-    let result = new THREE.Vector2(v.x + Z_2D_SCALE * v.z, -v.y);
+    // Warped sort-of-parallel projection
+    let result = new THREE.Vector2(v.x + Z_2D_SCALE * v.z,
+				   -v.y - (Z_2D_SCALE/4) * v.z);
     result.z = v.z;
     return result;
 }
@@ -34,6 +35,7 @@ const FRONT_SLANT = -1;
 const BOND_LENGTH_FACTOR = 0.3; // Open space at the beginning of the bond
 const WEDGE_LENGTH_FACTOR = 0.3; // Open space at the beginning of the bond
 const WEDGE_WIDTH = 4;
+const DOUBLE_OFFSET = 3; // Half the distance between the lines of a double bond
 class Bond extends THREE.Group {
     constructor(end1, end2, bond_state) {
         super();
@@ -95,20 +97,36 @@ class Bond extends THREE.Group {
             this.g.setAttribute('transform', 'rotate(' + 
                                 THREE.Math.radToDeg(diff.angle()) +
                                 ' ' + start.x + ' ' + start.y + ')');
-
-            // Calculation in the plane
-            if (this.bond_state === PARTIAL || this.bond_state === FULL) {
-                this.path1.setAttribute('d', 
+	    
+	    switch (this.bond_state) {
+	    case PARTIAL:
+	    case FULL:
+		this.path1.setAttribute('d', 
                                         'M' + start.x + ',' + start.y +
                                         ' h' + diff.length());
-            }
-            // Fill in the double-bond calcs later
-            else if ((this.bond_state === BACK_SLANT) || (this.bond_state === FRONT_SLANT)) {
-                this.path1.setAttribute('d',
-                                        'M' + start.x +',' + start.y + ' ' +
-                                        'l' + diff.length() + ',' + WEDGE_WIDTH + ' ' +
-                                        'v' + (-2 * WEDGE_WIDTH) + ' Z');
-            }
+		break;
+	    case FULL_PARTIAL:
+	    case DOUBLE:
+		this.path1.setAttribute('d',
+					'M' + (start.x) + ','
+					    + (start.y + DOUBLE_OFFSET) +
+					' h' + diff.length());
+		this.path2.setAttribute('d',
+					'M' + (start.x) + ','
+					    + (start.y - DOUBLE_OFFSET) +
+					' h' + diff.length());
+		break;
+	    case BACK_SLANT:
+	    case FRONT_SLANT:
+		this.path1.setAttribute('d',
+                                        'M' + start.x +',' + start.y +
+                                        ' l' + diff.length() + ','
+					     + WEDGE_WIDTH +
+                                        ' v' + (-2 * WEDGE_WIDTH) + ' Z');
+		break;
+	    default: // Shouldn't happen
+		break;
+	    }
         }
     }
 }
@@ -412,10 +430,12 @@ function makeAcyl(props) {
     // Add the bonds
     const nucleophile_carb = new Bond(nucleophile, carb, BROKEN);
     model.needsUpdates.push(nucleophile_carb);
-    const carb_ethyl = new Bond(carb, ethyl, BACK_SLANT);
+    const carb_ethyl = new Bond(carb, ethyl, FRONT_SLANT);
     model.needsUpdates.push(carb_ethyl);
-    const carb_ch3 = new Bond(carb, ch3, FRONT_SLANT);
+    const carb_ch3 = new Bond(carb, ch3, BACK_SLANT);
     model.needsUpdates.push(carb_ch3);
+    const carb_oxy = new Bond(carb, oxy, DOUBLE);
+    model.needsUpdates.push(carb_oxy);
 
     model.t = 0;
     model.setT = function(newT, revQuat) {
@@ -438,12 +458,15 @@ function makeAcyl(props) {
         // Update the bond states
         if (model.t < 0.3) {
             nucleophile_carb.setState(BROKEN);
+	    carb_oxy.setState(DOUBLE);
         }
         else if (model.t > 0.5) {
             nucleophile_carb.setState(FULL);
+	    carb_oxy.setState(FULL);
         }
         else {
             nucleophile_carb.setState(PARTIAL);
+	    carb_oxy.setState(FULL_PARTIAL);
         }
         
         // Atoms/groups need to be updated before their bonds

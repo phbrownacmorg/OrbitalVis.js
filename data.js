@@ -9,6 +9,8 @@ $(document).ready(function() {
                                 viewBox: "-500 -100 1000 200",
                                 Scale2D: [100, 100, 40] },
                     Acyl:     { layout: "vertical",
+				viewBox: "-100 -300 200 600",
+				Scale2D: [100, 200, 40],
                                 fov: 40 },
                     "Acyl-L": { reaction: "Acyl-L" },
                     "Acyl-R": { reaction: "Acyl-R" },
