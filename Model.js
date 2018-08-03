@@ -1,6 +1,10 @@
 /* global $ */
 /* global THREE */
 
+/* global makeAcyl */
+/* global makeEA2A */
+/* global makeSN2 */
+
 // Beware: COLORS (for THREE.js) uses X11 color names, which are only *mostly*
 //     the same as the W3C color names.
 const COLORS = { C: 'black', Cl: 'rgb(0, 221, 0)', H: 'white', O: 'rgb(221, 0, 0)' };
@@ -315,171 +319,6 @@ function makeEthyl(text = 'CH2CH3') {
     return carb;
 }
 
-function makeSN2() {
-    const model = new THREE.Group();
-    model.needsUpdates = [];
-    
-    const oh = makeHydroxide();
-    oh.start = new THREE.Vector3(-2 * SP3_SP3_BOND_LENGTH - 100, 0, 0);
-    oh.end = new THREE.Vector3(-2 * SP3_SP3_BOND_LENGTH, 0, 0);
-    oh.position.copy(oh.start);
-    model.add(oh);
-    model.needsUpdates.push(oh);
-    
-    const carb = new SP3Atom('C');
-    model.add(carb);
-    model.needsUpdates.push(carb);
-    
-    const carb_oh = new Bond(carb, oh, BROKEN);
-    model.needsUpdates.push(carb_oh);
-    
-    for (let i = 1; i < 4; i++) {
-        const hydro = makeSAtom('H');
-        carb.addToOrbital(i, hydro, S_RADIUS);
-        model.needsUpdates.push(hydro);
-        const bond_states = [undefined, FULL, BACK_SLANT, FRONT_SLANT];
-        const carb_hydro = new Bond(carb, hydro, bond_states[i]);
-        model.needsUpdates.push(carb_hydro);
-    }
-    
-    const chlor = new SP3Atom("Cl");
-    chlor.start = new THREE.Vector3(2 * SP3_SP3_BOND_LENGTH, 0, 0);
-    chlor.end = new THREE.Vector3(2 * SP3_SP3_BOND_LENGTH + 100, 0, 0);
-    chlor.position.copy(chlor.start);
-    chlor.rotateY(Math.PI);
-    model.add(chlor);
-    
-    const carb_chlor = new Bond(carb, chlor, FULL);
-    model.needsUpdates.push(chlor);
-    model.needsUpdates.push(carb_chlor);
-    
-    model.t = 0;
-    model.setT = function(newT, revQuat) {
-        model.t = newT;
-        oh.position.lerpVectors(oh.start, oh.end, newT);
-        chlor.position.lerpVectors(chlor.start, chlor.end, newT);
-        carb.setInsideOutness(newT);
-        
-        // set bond states
-        if (newT < 0.4) {
-            carb_oh.setState(BROKEN);
-            carb_chlor.setState(FULL);
-        }
-        else if (newT > 0.6) {
-            carb_oh.setState(FULL);
-            carb_chlor.setState(BROKEN);
-        }
-        else {
-            carb_oh.setState(PARTIAL);
-            carb_chlor.setState(PARTIAL);
-        }
-        
-        // Atoms/groups need to be updated before their bonds
-        for (let item of model.needsUpdates) {
-            item.update2D(revQuat);
-        }
-    };
-    
-    return model;
-}
-
-function makeAcyl(props) {
-    const model = new THREE.Group();
-    model.needsUpdates = [];
-    model.attackSide = props.reaction.charAt(5); // 'L' or 'R'
-    model.xSign = 1; // 'R'
-    if (props.reaction.charAt(5) === 'L') {
-        model.xSign = -1;
-    }
-    
-    const nucleophile = makeSAtom('H');
-    nucleophile.start = new THREE.Vector3(model.xSign * (S_SP3_BOND_LENGTH + 80), 0, 0);
-    nucleophile.end = new THREE.Vector3(model.xSign * S_SP3_BOND_LENGTH, 0, 0);
-    nucleophile.position.copy(nucleophile.start);
-    model.add(nucleophile);
-    model.needsUpdates.push(nucleophile);
-    
-    const carb = new SP3Atom('C');
-    carb.setInsideOutness(0.5);
-    carb.setP0Divergence(1);
-    carb.rotateX(Math.PI);
-    model.add(carb);
-    model.needsUpdates.push(carb);
-    
-    const oxy = new SP3Atom('O');
-    oxy.setInsideOutness(0.5);
-    oxy.setP0Divergence(1);
-    oxy.add(new THREE.AxesHelper(100));
-    oxy.rotation.z = -Math.PI/2;
-    carb.addToOrbital(1, oxy, SP3_SP3_BOND_LENGTH);
-    model.needsUpdates.push(oxy);
-    
-    const ethyl = makeEthyl();
-    ethyl.setInsideOutness(1.0);
-    ethyl.rotateX(1.5 * RELAXED_ANGLE + 0.25 * Math.PI);
-    carb.addToOrbital(2, ethyl, SP3_SP3_BOND_LENGTH);
-    model.needsUpdates.push(ethyl);
-        
-    const ch3 = makeMethyl();
-    //ch3.add(new THREE.AxesHelper(30));
-    ch3.setInsideOutness(1.0);
-    ch3.rotateX(1.5 * RELAXED_ANGLE + 0.25 * Math.PI);  // Roll an H straight down
-    carb.addToOrbital(3, ch3, SP3_SP3_BOND_LENGTH);
-    model.needsUpdates.push(ch3);
-
-    // Add the bonds
-    const nucleophile_carb = new Bond(nucleophile, carb, BROKEN);
-    model.needsUpdates.push(nucleophile_carb);
-    const carb_ethyl = new Bond(carb, ethyl, FRONT_SLANT);
-    model.needsUpdates.push(carb_ethyl);
-    const carb_ch3 = new Bond(carb, ch3, BACK_SLANT);
-    model.needsUpdates.push(carb_ch3);
-    const carb_oxy = new Bond(carb, oxy, DOUBLE);
-    model.needsUpdates.push(carb_oxy);
-
-    model.t = 0;
-    model.setT = function(newT, revQuat) {
-        model.t = newT;
-        // Set the angles betwen the carbon's orbitals, and the proportion of its center orbital
-        const insideOutnessOffset = -model.xSign * 
-            Math.max(0, Math.min(0.5, ((0.5/0.6) * (newT - 0.3))));
-        const insideOutness = 0.5 + insideOutnessOffset;
-        const divergence = 1.0 - (4 * (insideOutness - 0.5) * (insideOutness - 0.5));
-        carb.setInsideOutness(insideOutness);
-        carb.setP0Divergence(divergence);
-        oxy.setInsideOutness(insideOutness);
-        oxy.setP0Divergence(divergence);
-        oxy.rotation.z = -Math.PI/2 - (Math.PI/2 - oxy.zeroOneAngle);
-        
-        // nucleophile moves in
-        nucleophile.position.lerpVectors(nucleophile.end, nucleophile.start, 
-                                         Math.max(0, 0.8 - newT)/0.8);
-        
-        // Update the bond states
-        if (model.t < 0.3) {
-            nucleophile_carb.setState(BROKEN);
-	    carb_oxy.setState(DOUBLE);
-        }
-        else if (model.t > 0.5) {
-            nucleophile_carb.setState(FULL);
-	    carb_oxy.setState(FULL);
-        }
-        else {
-            nucleophile_carb.setState(PARTIAL);
-	    carb_oxy.setState(FULL_PARTIAL);
-        }
-        
-        // Atoms/groups need to be updated before their bonds
-        for (let item of model.needsUpdates) {
-            item.update2D(revQuat);
-        }
-    }
-    
-    model.add(new THREE.AxesHelper(100));
-    return model;
-}
-
-
 function makeModel(props) {
     let model;
     switch(props.reaction) {
@@ -490,6 +329,10 @@ function makeModel(props) {
         case 'Acyl-R':
             model = makeAcyl(props);
             break;
+        case 'EA2A-L':
+        case 'EA2A-R':
+	    model = makeEA2A(props);
+	    break;
         default:
             model = new THREE.AxesHelper(100);
             model.needsUpdates = [];

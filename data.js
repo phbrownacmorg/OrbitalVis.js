@@ -14,6 +14,11 @@ $(document).ready(function() {
                                 fov: 40 },
                     "Acyl-L": { reaction: "Acyl-L" },
                     "Acyl-R": { reaction: "Acyl-R" },
+		    EA2A:     { layout: "vertical",
+				viewBox: "-100 -300 200 600",
+				fov: 50 },
+		    "EA2A-L": { reaction: "EA2A-L" },
+		    "EA2A-R": { reaction: "EA2A-R" },
                     SN2:      { reaction: 'SN2'}
                 };
 
