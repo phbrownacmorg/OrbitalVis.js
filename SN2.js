@@ -48,6 +48,8 @@ function makeSN2() {
     chlor.rotateY(Math.PI);
     model.add(chlor);
     
+    setRenderOrder(model);
+
     const carb_chlor = new Bond(carb, chlor, FULL);
     model.needsUpdates.push(chlor);
     model.needsUpdates.push(carb_chlor);

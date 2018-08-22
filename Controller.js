@@ -43,7 +43,7 @@ $(document).ready(function() {
 
     let renderer = new THREE.WebGLRenderer();
     renderer.setClearColor(new THREE.Color( 0.4, 0.4, 0.4 ), 1.0);
-    renderer.sortObjects = false;
+    //renderer.sortObjects = false;
     $('#display-3D').append(renderer.domElement);
     //renderer.domElement.style.setProperty('border', 'thin dashed blue');
 

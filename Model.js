@@ -28,6 +28,22 @@ function vec3To2D(v) {
     return result;
 }
 
+const Z_RENDER_ORDER_SCALE = 0.002;
+function setRenderOrder(obj) {
+    // Precondition: obj is a THREE.Object3D
+    let worldPos = new THREE.Vector3();
+    obj.getWorldPosition(worldPos);
+    obj.renderOrder = worldPos.z * Z_RENDER_ORDER_SCALE + 0.5;
+    // assert obj.renderOrder is in [0, 1]
+    if ((obj.renderOrder < 0) || (obj.renderOrder > 1)) {
+	console.log("ERROR: ", obj.id, obj.renderOrder, worldPos);
+    }
+    // else {
+    // 	console.log(obj.id, obj.renderOrder, worldPos);
+    // }
+    obj.children.forEach( setRenderOrder );
+}
+
 // Bond states
 const BROKEN = 0;
 const PARTIAL = 0.5;
@@ -162,6 +178,7 @@ class AtomGroup extends THREE.Group {
         this.textElt.setAttribute('x', textPos.x);
         this.textElt.setAttribute('y', textPos.y);
     }
+
 }
 
 const S_RADIUS = 25;

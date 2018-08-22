@@ -73,22 +73,24 @@ function makeEA2A(props) {
     const top_H = makeSAtom('H');
     top_carb.addToOrbital(3, top_H, S_RADIUS);
     model.needsUpdates.push(top_H);
+
+    setRenderOrder(model);
     
     // Bonds
     const carb_carb = new Bond(top_carb, bottom_carb, DOUBLE);
     model.needsUpdates.push(carb_carb);
     // Not BACK_SLANT?
-    const bottom_carb_H = new Bond(bottom_carb, bottom_H, FULL); 
+    const bottom_carb_H = new Bond(bottom_carb, bottom_H, BACK_SLANT); //x-FULL 
     model.needsUpdates.push(bottom_carb_H);
-    const top_carb_ch3 = new Bond(top_carb, ch3a, FULL); // Not BACK_SLANT?
+    const top_carb_ch3 = new Bond(top_carb, ch3a, BACK_SLANT); // x-FULL
     model.needsUpdates.push(top_carb_ch3);
-    const bottom_carb_ch3 = new Bond(bottom_carb, ch3b, FULL); // Not slant?
+    const bottom_carb_ch3 = new Bond(bottom_carb, ch3b, FRONT_SLANT); // x-FULL
     model.needsUpdates.push(bottom_carb_ch3);
     const top_carb_new_H = new Bond(top_carb, new_H, BROKEN);
     model.needsUpdates.push(top_carb_new_H);
     const new_H_cl = new Bond(new_H, cl, FULL);
     model.needsUpdates.push(new_H_cl);
-    const top_carb_H = new Bond(top_carb, top_H, FULL); // not slant?
+    const top_carb_H = new Bond(top_carb, top_H, FRONT_SLANT); // x-FULL
     model.needsUpdates.push(top_carb_H);
     
     model.t = 0;

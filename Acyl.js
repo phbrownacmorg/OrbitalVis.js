@@ -49,12 +49,6 @@ function makeAcyl(props) {
     carb.addToOrbital(1, oxy, SP3_SP3_BOND_LENGTH);
     model.needsUpdates.push(oxy);
     
-    const ethyl = makeEthyl();
-    ethyl.setInsideOutness(1.0);
-    ethyl.rotateX(1.5 * RELAXED_ANGLE + 0.25 * Math.PI);
-    carb.addToOrbital(2, ethyl, SP3_SP3_BOND_LENGTH);
-    model.needsUpdates.push(ethyl);
-        
     const ch3 = makeMethyl();
     //ch3.add(new THREE.AxesHelper(30));
     ch3.setInsideOutness(1.0);
@@ -62,6 +56,14 @@ function makeAcyl(props) {
     carb.addToOrbital(3, ch3, SP3_SP3_BOND_LENGTH);
     model.needsUpdates.push(ch3);
 
+    const ethyl = makeEthyl();
+    ethyl.setInsideOutness(1.0);
+    ethyl.rotateX(1.5 * RELAXED_ANGLE + 0.25 * Math.PI);
+    carb.addToOrbital(2, ethyl, SP3_SP3_BOND_LENGTH);
+    model.needsUpdates.push(ethyl);
+        
+    setRenderOrder(model);
+    
     // Add the bonds
     const nucleophile_carb = new Bond(nucleophile, carb, BROKEN);
     model.needsUpdates.push(nucleophile_carb);
