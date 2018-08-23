@@ -30,14 +30,14 @@ function makeEA2A(props) {
     const top_carb = new SP3Atom('C');
     top_carb.setInsideOutness(0.5);
     top_carb.setP0Divergence(1);
-    top_carb.add(new THREE.AxesHelper(100));
+    //top_carb.add(new THREE.AxesHelper(100));
     model.add(top_carb);
     model.needsUpdates.push(top_carb);
 
     const bottom_carb = new SP3Atom('C');
     bottom_carb.setInsideOutness(0.5);
     bottom_carb.setP0Divergence(1);
-    bottom_carb.add(new THREE.AxesHelper(100));
+    //bottom_carb.add(new THREE.AxesHelper(100));
     bottom_carb.rotation.z = -Math.PI/2;
     top_carb.addToOrbital(1, bottom_carb, SP3_SP3_BOND_LENGTH);
     model.needsUpdates.push(bottom_carb);
@@ -74,8 +74,6 @@ function makeEA2A(props) {
     top_carb.addToOrbital(3, top_H, S_RADIUS);
     model.needsUpdates.push(top_H);
 
-    setRenderOrder(model);
-    
     // Bonds
     const carb_carb = new Bond(top_carb, bottom_carb, DOUBLE);
     model.needsUpdates.push(carb_carb);

@@ -3,6 +3,7 @@
 
 /* global makeAcyl */
 /* global makeEA2A */
+/* global makeSN1 */
 /* global makeSN2 */
 
 // Beware: COLORS (for THREE.js) uses X11 color names, which are only *mostly*
@@ -336,6 +337,14 @@ function makeEthyl(text = 'CH2CH3') {
     return carb;
 }
 
+function makeWater(text = 'H2O') {
+    const oxy = new SP3Atom('O', text);
+    for (let i = 2; i < 4; i++) {
+	oxy.addToOrbital(i, makeSAtom('H', ''), S_RADIUS);
+    }
+    return oxy;
+}
+
 function makeModel(props) {
     let model;
     switch(props.reaction) {
@@ -350,10 +359,17 @@ function makeModel(props) {
         case 'EA2A-R':
 	    model = makeEA2A(props);
 	    break;
+        case 'SN1-L':
+        case 'SN1-R':
+	    model = makeSN1(props);
+	    break;
         default:
             model = new THREE.AxesHelper(100);
+            model.setT = function(newT, revQuat) {};
             model.needsUpdates = [];
     }
+
+    setRenderOrder(model);
     
     for (let item of model.needsUpdates) {
         // Bonds should really be added to the DOM first, so they lie behind the

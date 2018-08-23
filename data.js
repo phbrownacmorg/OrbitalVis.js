@@ -19,7 +19,12 @@ $(document).ready(function() {
 				fov: 50 },
 		    "EA2A-L": { reaction: "EA2A-L" },
 		    "EA2A-R": { reaction: "EA2A-R" },
-                    SN2:      { reaction: 'SN2'}
+		    SN1:      { layout: "vertical",
+				viewBox: "-100 -300 200 600",
+			        fov: 45 },
+		    "SN1-L":  { reaction: "SN1-L" },
+		    "SN1-R":  { reaction: "SN1-R" },
+                    SN2:      { reaction: 'SN2' }
                 };
 
     function provideDefaults(baseKey, reaction) {
