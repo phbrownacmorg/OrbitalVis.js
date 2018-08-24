@@ -18,7 +18,7 @@ function makeSN2() {
     const model = new THREE.Group();
     model.needsUpdates = [];
     
-    const oh = makeHydroxide();
+    const oh = makeHydroxide('HO');
     oh.start = new THREE.Vector3(-2 * SP3_SP3_BOND_LENGTH - 100, 0, 0);
     oh.end = new THREE.Vector3(-2 * SP3_SP3_BOND_LENGTH, 0, 0);
     oh.position.copy(oh.start);
