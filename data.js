@@ -14,6 +14,8 @@ $(document).ready(function() {
                                 fov: 40 },
                     "Acyl-L": { reaction: "Acyl-L" },
                     "Acyl-R": { reaction: "Acyl-R" },
+		    E1:       { reaction: "E1",
+				fov: 25, eye: [250, 50, 1000] },
 		    EA2A:     { layout: "vertical",
 				viewBox: "-100 -300 200 600",
 				fov: 50 },

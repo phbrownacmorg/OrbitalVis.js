@@ -33,6 +33,7 @@ function reshapeCamera(camera, props) {
     camera.near = props['near'];
     camera.far = props['far'];
     camera.updateProjectionMatrix();
+    console.log(eyept, camera.position);
 }
 
 $(document).ready(function() {

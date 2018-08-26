@@ -239,7 +239,7 @@ class POrbital extends THREE.Group {
         this.lobe0.position.set(50 * (1 - prop), 0, 0);
         this.lobe0.scale.set((1 - prop) * divergenceFactor, (1 - prop), 1 - prop);        
     }
-    
+
     static makeHalfPOrbital(scalingFactor, material) {
         const R = 100 * Math.tan(MIN_CENTRAL_ANGLE);
         const SEGS = 64;
@@ -348,12 +348,12 @@ function makeWater(text = 'H2O') {
 function makeModel(props) {
     let model;
     switch(props.reaction) {
-        case 'SN2':
-            model = makeSN2(props);
-            break;
         case 'Acyl-L':
         case 'Acyl-R':
             model = makeAcyl(props);
+            break;
+        case 'E1':
+            model = makeE1(props);
             break;
         case 'EA2A-L':
         case 'EA2A-R':
@@ -363,6 +363,9 @@ function makeModel(props) {
         case 'SN1-R':
 	    model = makeSN1(props);
 	    break;
+        case 'SN2':
+            model = makeSN2(props);
+            break;
         default:
             model = new THREE.AxesHelper(100);
             model.setT = function(newT, revQuat) {};
