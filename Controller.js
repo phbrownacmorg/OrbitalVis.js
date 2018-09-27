@@ -5,7 +5,7 @@
 function setGeometry(props, renderer) {
     let w; 
     let h;
-    if (props['layout'] === 'vertical') {
+    if (props.layout === 'vertical') {
         $('#displays').css('flex-direction', 'row');
         w = $('#displays').width()/2;
         h = $('#displays').height();
@@ -24,14 +24,14 @@ function setGeometry(props, renderer) {
 }
 
 function reshapeCamera(camera, props) {
-    camera.fov = props['fov'];
-    let eyept = props['eye'];
+    camera.fov = props.fov;
+    let eyept = props.eye;
     camera.position.set(eyept[0], eyept[1], eyept[2]);
     camera.lookAt(0, 0, 0);
     camera.aspect = $('#display-3D').children().width() / 
                     $('#display-3D').children().height();
-    camera.near = props['near'];
-    camera.far = props['far'];
+    camera.near = props.near;
+    camera.far = props.far;
     camera.updateProjectionMatrix();
     console.log(eyept, camera.position);
 }
@@ -66,7 +66,7 @@ $(document).ready(function() {
         }
         $('#svg-xfm').empty();
         scene.add(makeModel(properties[reaction]));
-        rockingAngle = properties[reaction]['rockingAngle'];
+        rockingAngle = properties[reaction].rockingAngle;
         t = 0;
     };
     changeReactionFn();
