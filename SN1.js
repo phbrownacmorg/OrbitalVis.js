@@ -7,7 +7,7 @@
 /* global BACK_SLANT */
 /* global FRONT_SLANT */
 
-/* global makeSAtom */
+/* global SAtom */
 /* global SP3Atom */
 /* global RELAXED_ANGLE */
 /* global S_RADIUS */
@@ -52,7 +52,7 @@ function makeSN1(props) {
     model.add(carb);
     model.needsUpdates.push(carb);
 
-    const hydro = makeSAtom('H');
+    const hydro = new SAtom('H');
     carb.addToOrbital(3, hydro, S_RADIUS);
     model.needsUpdates.push(hydro);
 
@@ -62,7 +62,7 @@ function makeSN1(props) {
     carb.addToOrbital(1, ethyl, SP3_SP3_BOND_LENGTH);
     model.needsUpdates.push(ethyl);
 
-    const ch3 = makeMethyl();
+    const ch3 = new Methyl();
     ch3.rotation.set(Math.PI/6, 0, Math.PI);
     carb.addToOrbital(2, ch3, SP3_SP3_BOND_LENGTH);
     model.needsUpdates.push(ch3);

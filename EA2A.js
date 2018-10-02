@@ -7,14 +7,14 @@
 /* global BACK_SLANT */
 /* global FRONT_SLANT */
 
-/* global makeSAtom */
+/* global SAtom */
 /* global SP3Atom */
 /* global RELAXED_ANGLE */
 /* global S_SP3_BOND_LENGTH */
 /* global SP3_SP3_BOND_LENGTH */
 
 /* global makeEthyl */
-/* global makeMethyl */
+/* global Methyl */
 
 /* global THREE */
 
@@ -42,21 +42,21 @@ function makeEA2A(props) {
     top_carb.addToOrbital(1, bottom_carb, SP3_SP3_BOND_LENGTH);
     model.needsUpdates.push(bottom_carb);
 
-    const bottom_H = makeSAtom('H');
+    const bottom_H = new SAtom('H');
     bottom_carb.addToOrbital(2, bottom_H, S_RADIUS);
     model.needsUpdates.push(bottom_H);
 
-    const ch3a = makeMethyl();
+    const ch3a = new Methyl();
     ch3a.rotation.set(2*Math.PI/3, 0, Math.PI);
     top_carb.addToOrbital(2, ch3a, SP3_SP3_BOND_LENGTH);
     model.needsUpdates.push(ch3a);
 
-    const ch3b = makeMethyl();
+    const ch3b = new Methyl();
     ch3b.rotation.set(-2 * Math.PI/3, 0, Math.PI);
     bottom_carb.addToOrbital(3, ch3b, SP3_SP3_BOND_LENGTH);
     model.needsUpdates.push(ch3b);
    
-    const new_H = makeSAtom('H');
+    const new_H = new SAtom('H');
     new_H.start = new THREE.Vector3(model.xSign * (S_SP3_BOND_LENGTH + 60),
 				    0, 0);
     new_H.end = new THREE.Vector3(model.xSign * S_SP3_BOND_LENGTH, 0, 0);
@@ -70,7 +70,7 @@ function makeEA2A(props) {
     model.add(cl);
     model.needsUpdates.push(cl);
 
-    const top_H = makeSAtom('H');
+    const top_H = new SAtom('H');
     top_carb.addToOrbital(3, top_H, S_RADIUS);
     model.needsUpdates.push(top_H);
 

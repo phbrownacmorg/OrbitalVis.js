@@ -183,18 +183,18 @@ class AtomGroup extends THREE.Group {
 }
 
 const S_RADIUS = 25;
-function makeSAtom(name, text=name) {
-    let atom = new AtomGroup(text);
-    let geom = new THREE.SphereGeometry(S_RADIUS, 64, 64);
-    atom.add(new THREE.Mesh(geom, makeAtomMaterial(name)));
-    return atom;
+class SAtom extends AtomGroup {
+	constructor(name, text=name) {
+		super(text);
+		let geom = new THREE.SphereGeometry(S_RADIUS, 64, 64);
+		this.add(new THREE.Mesh(geom, makeAtomMaterial(name)));
+	}
 }
 
 // Half the minimum central angle of a POrbital's cone
 const MIN_CENTRAL_ANGLE = THREE.Math.degToRad(15); 
 // Half the maximum central angle of a POrbital's cone
 const MAX_CENTRAL_ANGLE = THREE.Math.degToRad(60);
-
 
 class POrbital extends THREE.Group {
     constructor(lobeProportion, divergence, material) {
@@ -310,29 +310,31 @@ class SP3Atom extends AtomGroup {
     }
 }
 
-function makeHydroxide(text = 'OH') {
-    const oxy = new SP3Atom('O', text);
-    oxy.addToOrbital(1, makeSAtom('H', ''), S_RADIUS);
-    return oxy;
+class Hydroxide extends SP3Atom {
+	constructor(text = 'OH') {
+		super('O', text);
+		this.addToOrbital(1, new SAtom('H', ''), S_RADIUS);
+	}
 }
 
-function makeMethyl(text = 'CH3') {
-    const carb = new SP3Atom('C', text);
-    for (let i = 1; i < 4; i++) {
-        carb.addToOrbital(i, makeSAtom('H', ''), S_RADIUS);
-    }
-    return carb;
+class Methyl extends SP3Atom {
+	constructor(text='CH3') {
+		super('C', text);
+		for (let i = 1; i < 4; i++) {
+     	   this.addToOrbital(i, new SAtom('H', ''), S_RADIUS);
+    	}
+	}
 }
 
 function makeEthyl(text = 'CH2CH3') {
     const carb = new SP3Atom('C', text);
-    const methyl = makeMethyl('');
+    const methyl = new Methyl('');
     methyl.setInsideOutness(1.0);
     //methyl.add(new THREE.AxesHelper(100));
     methyl.rotateX(Math.PI);
     carb.addToOrbital(1, methyl, SP3_SP3_BOND_LENGTH);
     for (let i = 2; i < 4; i++) {
-        carb.addToOrbital(i, makeSAtom('H', ''), S_RADIUS);
+        carb.addToOrbital(i, new SAtom('H', ''), S_RADIUS);
     }
     return carb;
 }
@@ -340,7 +342,7 @@ function makeEthyl(text = 'CH2CH3') {
 function makeWater(text = 'H2O') {
     const oxy = new SP3Atom('O', text);
     for (let i = 2; i < 4; i++) {
-	oxy.addToOrbital(i, makeSAtom('H', ''), S_RADIUS);
+	oxy.addToOrbital(i, new SAtom('H', ''), S_RADIUS);
     }
     return oxy;
 }
