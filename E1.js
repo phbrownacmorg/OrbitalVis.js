@@ -16,10 +16,8 @@
 
 /* global THREE */
 
-function makeE1() {
+function makeE1(model, props) {
     const MAX_WITHDRAWAL = 5 * SP3_SP3_BOND_LENGTH;
-    const model = new THREE.Group();
-    model.needsUpdates = [];
 
     const carb1 = new SP3Atom('C');
     carb1.position.set(-SP3_SP3_BOND_LENGTH, 0, 0);
@@ -194,7 +192,5 @@ function makeE1() {
         }	
     }
     
-
     model.add(new THREE.AxesHelper(100));
-    return model;
 }

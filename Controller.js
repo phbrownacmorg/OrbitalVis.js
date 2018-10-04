@@ -1,6 +1,6 @@
 /* global $ */
 /* global THREE */
-/* global makeModel */
+/* global Model */
 
 function setGeometry(props, renderer) {
     let w; 
@@ -33,7 +33,7 @@ function reshapeCamera(camera, props) {
     camera.near = props.near;
     camera.far = props.far;
     camera.updateProjectionMatrix();
-    console.log(eyept, camera.position);
+    //console.log(eyept, camera.position);
 }
 
 $(document).ready(function() {
@@ -55,8 +55,8 @@ $(document).ready(function() {
     let rockingAngle;
 
     let changeReactionFn = function() {
-        console.log(reaction);
-        console.log(properties[reaction]);
+        //console.log(reaction);
+        //console.log(properties[reaction]);
         setGeometry(properties[reaction], renderer);
         reshapeCamera(camera, properties[reaction]);
         for (let child of scene.children) {
@@ -65,7 +65,7 @@ $(document).ready(function() {
             }
         }
         $('#svg-xfm').empty();
-        scene.add(makeModel(properties[reaction]));
+        scene.add(new Model(properties[reaction]));
         rockingAngle = properties[reaction].rockingAngle;
         t = 0;
     };

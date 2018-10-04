@@ -13,10 +13,7 @@
 
 /* global THREE */
 
-function makeSN2() {
-    const model = new THREE.Group();
-    model.needsUpdates = [];
-    
+function makeSN2(model, props) {    
     const oh = new Hydroxide('HO');
     oh.start = new THREE.Vector3(-2 * SP3_SP3_BOND_LENGTH - 100, 0, 0);
     oh.end = new THREE.Vector3(-2 * SP3_SP3_BOND_LENGTH, 0, 0);
@@ -77,6 +74,4 @@ function makeSN2() {
             item.update2D(revQuat);
         }
     };
-    
-    return model;
 }

@@ -13,14 +13,11 @@
 /* global S_SP3_BOND_LENGTH */
 /* global SP3_SP3_BOND_LENGTH */
 
-/* global makeEthyl */
 /* global Methyl */
 
 /* global THREE */
 
-function makeEA2A(props) {
-    const model = new THREE.Group();
-    model.needsUpdates = [];
+function makeEA2A(model, props) {
     model.attackSide = props.reaction.charAt(5); // 'L' or 'R'
     model.xSign = 1; // 'R'
     if (props.reaction.charAt(5) === 'L') {
@@ -130,5 +127,4 @@ function makeEA2A(props) {
         }	
     }
     
-    return model;
 }
