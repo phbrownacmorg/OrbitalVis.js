@@ -113,7 +113,8 @@ class Bond extends THREE.Group {
     }
 }
 
-
+// setRenderOrder isn't a method of the Model class because it's recursive.
+//     Most of the things it's called on are not actually Models, but sub-objects.
 const Z_RENDER_ORDER_SCALE = 0.002;
 function setRenderOrder(obj) {
     // Precondition: obj is a THREE.Object3D
@@ -134,6 +135,7 @@ class Model extends THREE.Group {
 	constructor(props) {
 		super();
 		this.needsUpdates = [];
+		this.setSide(props.reaction);
 		
 		switch(props.reaction) {
 			case 'Acyl-L':
@@ -161,8 +163,24 @@ class Model extends THREE.Group {
 		}
 		
 		setRenderOrder(this);
+        this.updateDOM();
+	}
 
-	    for (let item of this.needsUpdates) {
+    // Set this.xSign
+    setSide(reaction) {
+        this.xSign = 0; // Ignored for reaction mechanisms that don't care about the side
+		if (reaction.endsWith('-L')) {
+		    this.xSign = -1;
+		}
+		else if (reaction.endsWith('-R')) {
+		    this.xSign = 1;
+		}
+    }
+
+    // Add the 2D elements to the DOM.  Clear out any cruft in the place where they go first.
+    updateDOM() {
+        $('#svg-xfm').empty();
+        for (let item of this.needsUpdates) {
     	    // Bonds should really be added to the DOM first, 
 			//     so they lie behind the atoms/groups
         	const elt = item.get2DElt();
@@ -173,6 +191,6 @@ class Model extends THREE.Group {
             	$('#svg-xfm').prepend(elt);
         	}
         	item.update2D(new THREE.Quaternion());
-    	}	
-	}
+    	}
+    }
 }

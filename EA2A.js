@@ -18,12 +18,6 @@
 /* global THREE */
 
 function makeEA2A(model, props) {
-    model.attackSide = props.reaction.charAt(5); // 'L' or 'R'
-    model.xSign = 1; // 'R'
-    if (props.reaction.charAt(5) === 'L') {
-        model.xSign = -1;
-    }
-
     const top_carb = new SP3Atom('C');
     top_carb.setInsideOutness(0.5);
     top_carb.setP0Divergence(1);

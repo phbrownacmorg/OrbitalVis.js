@@ -19,11 +19,6 @@
 /* global THREE */
 
 function makeAcyl(model, props) {
-    model.attackSide = props.reaction.charAt(5); // 'L' or 'R'
-    model.xSign = 1; // 'R'
-    if (props.reaction.charAt(5) === 'L') {
-        model.xSign = -1;
-    }
     
     const nucleophile = new SAtom('H');
     nucleophile.start = new THREE.Vector3(model.xSign * (S_SP3_BOND_LENGTH + 80), 0, 0);
