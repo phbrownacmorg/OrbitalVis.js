@@ -64,7 +64,7 @@ function makeE1(model, props) {
     chlor.end = chlor.mid.clone().add(new THREE.Vector3(MAX_WITHDRAWAL, 0, 0));
     model.needsUpdates.push(chlor);
 
-    const meth1 = new Methyl();
+    const meth1 = new Methyl('CH3', 0.5, 0.5);
     meth1.rotation.set(0, 0, Math.PI);
     carb1.addToOrbital(2, meth1, SP3_SP3_BOND_LENGTH);
     model.needsUpdates.push(meth1);

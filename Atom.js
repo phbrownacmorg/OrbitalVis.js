@@ -25,9 +25,10 @@ function vec3To2D(v) {
 }
 
 class AtomGroup extends THREE.Group {
-    constructor(name) {
+    constructor(name, tx=0, ty=0) {
         super();
         this.name = name;
+		this.offsets = new THREE.Vector2(tx, ty);
         if (name && name !== '') {
             this.textElt = document.createElementNS("http://www.w3.org/2000/svg", 'text');
             this.textElt.innerHTML = name;
@@ -43,7 +44,9 @@ class AtomGroup extends THREE.Group {
     }
     
     get2DPos(revQuat) {
-        return vec3To2D(this.getWorldPosition().applyQuaternion(revQuat));
+        return vec3To2D(this.getWorldPosition()
+						.applyQuaternion(revQuat))
+			.add(this.offsets);
     }
     
     update2D(revQuat) {
@@ -56,8 +59,8 @@ class AtomGroup extends THREE.Group {
 
 const S_RADIUS = 25;
 class SAtom extends AtomGroup {
-	constructor(name, text=name) {
-		super(text);
+	constructor(name, text=name, tx=0, ty=0) {
+		super(text, tx, ty);
 		let geom = new THREE.SphereGeometry(S_RADIUS, 64, 64);
 		this.add(new THREE.Mesh(geom, makeAtomMaterial(name)));
 	}
@@ -136,8 +139,8 @@ const S_SP3_BOND_LENGTH = 100 * (1 - DEFAULT_LOBE_PROP) + S_RADIUS;
 const SP3_SP3_BOND_LENGTH = 100 * (1 - DEFAULT_LOBE_PROP);  // Why only 100?
 
 class SP3Atom extends AtomGroup {
-    constructor(name, text=name) {
-        super(text);
+    constructor(name, text=name, tx=0, ty=0) {
+        super(text, tx, ty);
         
         const material = makeAtomMaterial(name);
         this.insideOutness = 0;  // in [0, 1]
@@ -183,15 +186,15 @@ class SP3Atom extends AtomGroup {
 }
 
 class Hydroxide extends SP3Atom {
-	constructor(text = 'OH') {
-		super('O', text);
+	constructor(text = 'OH', tx=0, ty=0) {
+		super('O', text, tx, ty);
 		this.addToOrbital(1, new SAtom('H', ''), S_RADIUS);
 	}
 }
 
 class Methyl extends SP3Atom {
-	constructor(text='CH3') {
-		super('C', text);
+	constructor(text='CH3', tx=0, ty=0) {
+		super('C', text, tx, ty);
 		for (let i = 1; i < 4; i++) {
      	   this.addToOrbital(i, new SAtom('H', ''), S_RADIUS);
     	}
@@ -199,8 +202,8 @@ class Methyl extends SP3Atom {
 }
 
 class Ethyl extends SP3Atom {
-	constructor(text = 'CH2CH3') {
-		super('C', text);
+	constructor(text = 'CH2CH3', tx=0, ty=0) {
+		super('C', text, tx, ty);
 		const methyl = new Methyl('');
 		methyl.setInsideOutness(1.0);
 		methyl.rotateX(Math.PI);
@@ -211,8 +214,8 @@ class Ethyl extends SP3Atom {
 }
 
 class Water extends SP3Atom {
-	constructor(text = 'H2O') {
-    	super('O', text);
+	constructor(text = 'H2O', tx=0, ty=0) {
+    	super('O', text, tx, ty);
     	for (let i = 2; i < 4; i++) {
 			this.addToOrbital(i, new SAtom('H', ''), S_RADIUS);
     	}
