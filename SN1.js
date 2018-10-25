@@ -22,17 +22,15 @@
 
 function makeSN1(model, props) {
     const MAX_WITHDRAWAL = 50 * SP3_SP3_BOND_LENGTH;
-    model.attackSide = props.reaction.charAt(4); // 'L' or 'R'
-	let water;
-    if (props.reaction.charAt(4) === 'L') {
-        model.xSign = -1;
-		water = new Water('H2O');
+    let water;
+    if (model.xSign === -1) { // Left-side attack
+        water = new Water('H2O');
     }
-    else {  // 'R'
-		model.xSign = 1;
-		water = new Water('OH2');
-		water.rotation.set(0, Math.PI, 0);
+    else if (model.xSign === 1) { // Right-side attack
+        water = new Water('OH2');
+        water.rotation.set(0, Math.PI, 0);
     }
+    
     water.start = new THREE.Vector3(model.xSign * MAX_WITHDRAWAL, 0, 0);
     water.mid = new THREE.Vector3(model.xSign * (2 * SP3_SP3_BOND_LENGTH + 100),
 				  0, 0);
