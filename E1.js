@@ -51,7 +51,7 @@ function makeE1(model, props) {
     carb1.addToOrbital(3, hydro1, S_RADIUS);
     model.needsUpdates.push(hydro1);
 
-    const meth3 = new Methyl();
+    const meth3 = new Methyl('CH3', 30, -50);
     meth3.rotation.set(-7 * Math.PI/12, 0, Math.PI);
     carb2.addToOrbital(3, meth3, SP3_SP3_BOND_LENGTH);
     model.needsUpdates.push(meth3);
@@ -64,7 +64,7 @@ function makeE1(model, props) {
     chlor.end = chlor.mid.clone().add(new THREE.Vector3(MAX_WITHDRAWAL, 0, 0));
     model.needsUpdates.push(chlor);
 
-    const meth1 = new Methyl('CH3', 0.5, 0.5);
+    const meth1 = new Methyl('CH3', -30, 50);
     meth1.rotation.set(0, 0, Math.PI);
     carb1.addToOrbital(2, meth1, SP3_SP3_BOND_LENGTH);
     model.needsUpdates.push(meth1);
