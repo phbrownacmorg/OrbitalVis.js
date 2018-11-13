@@ -56,6 +56,17 @@ function makeE2(model, props) {
     oh.close2 = oh.close1.clone().setX(oh.close1.x + S_RADIUS);
     model.add(oh);
     model.needsUpdates.push(oh);
+    
+    const chlor = new SP3Atom('Cl');
+    carb2.addToOrbital(0, chlor, SP3_SP3_BOND_LENGTH);
+    //chlor.add(new THREE.AxesHelper(100));
+    chlor.rotation.set(0, Math.PI, 0);
+    chlor.start = chlor.position.clone();
+    chlor.mid = chlor.start.clone().add(new THREE.Vector3(40, 0, 0));
+    chlor.end = chlor.start.clone().add(new THREE.Vector3(MAX_WITHDRAWAL, 0, 0));
+    //console.log(JSON.stringify(chlor.start));
+    //console.log(JSON.stringify(chlor.mid));
+    model.needsUpdates.push(chlor);
 
     const hydro1 = new SAtom('H');
     carb1.addToOrbital(2, hydro1, S_RADIUS);
@@ -66,6 +77,8 @@ function makeE2(model, props) {
     model.needsUpdates.push(carb1_carb2);
     const carb1_hydro1 = new Bond(carb1, hydro1, BACK_SLANT);
     model.needsUpdates.push(carb1_hydro1);
+    const carb2_chlor = new Bond(carb2, chlor, FULL);
+    model.needsUpdates.push(carb2_chlor);
     
     model.setT = function(newT, revQuat) {
         model.t = newT;
@@ -93,22 +106,49 @@ function makeE2(model, props) {
         if (newT < 0.4) {
             oh.position.lerpVectors(oh.start, oh.close1, newT/0.4);
             hydro2.position.copy(hydro2.start);
+            chlor.position.copy(chlor.start);
         }
         else if (newT < 0.5) {
             oh.position.lerpVectors(oh.close1, oh.close2, 
                                     (newT - 0.4)/0.1);
             hydro2.position.lerpVectors(hydro2.start, hydro2.bind,
                                         (newT - 0.4)/0.1);
+            chlor.position.lerpVectors(chlor.start, chlor.mid,
+                                        (newT - 0.4)/0.2);
         }
         else if (newT < 0.6) {
             oh.position.lerpVectors(oh.close2, oh.close1,
                                     (newT - 0.5)/0.1);
             hydro2.position.addVectors(oh.position, hydro2.offset);
+            chlor.position.lerpVectors(chlor.start, chlor.mid,
+                                        (newT - 0.4)/0.2);
         }
         else {
             oh.position.lerpVectors(oh.close1, oh.start, (newT-0.6)/0.4);
             hydro2.position.addVectors(oh.position, hydro2.offset);
+            chlor.position.lerpVectors(chlor.mid, chlor.end, 
+                                       (newT - 0.6)/0.4);
         }
+        
+        // Update the Bonds
+        if (newT < 0.45) {
+            carb1_carb2.setState(FULL);
+            carb2_chlor.setState(FULL);
+        }
+        else if (newT > 0.55) {
+            carb1_carb2.setState(DOUBLE);
+            carb2_chlor.setState(BROKEN);
+        }
+        else {
+            carb1_carb2.setState(FULL_PARTIAL);
+            carb2_chlor.setState(PARTIAL);
+        }
+        
+        // Atoms/groups need to be updated before their bonds
+        for (let item of model.needsUpdates) {
+            item.update2D(revQuat);
+        }	
+
     };
     
     model.add(new THREE.AxesHelper(100));
