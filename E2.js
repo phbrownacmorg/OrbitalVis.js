@@ -68,9 +68,13 @@ function makeE2(model, props) {
     //console.log(JSON.stringify(chlor.mid));
     model.needsUpdates.push(chlor);
 
-    const hydro1 = new SAtom('H');
+    const hydro1 = new SAtom('H', 'H', -40, 30);
     carb1.addToOrbital(2, hydro1, S_RADIUS);
     model.needsUpdates.push(hydro1);
+    
+    const meth1 = new Methyl('CH3', -40, -30);
+    carb1.addToOrbital(3, meth1, S_RADIUS);
+    model.needsUpdates.push(meth1);
     
     // Bonds
     const carb1_carb2 = new Bond(carb1, carb2, FULL);
@@ -79,6 +83,13 @@ function makeE2(model, props) {
     model.needsUpdates.push(carb1_hydro1);
     const carb2_chlor = new Bond(carb2, chlor, FULL);
     model.needsUpdates.push(carb2_chlor);
+    const hydro2_oh = new Bond(hydro2, oh, BROKEN);
+    model.needsUpdates.push(hydro2_oh);
+    const hydro2_carb1 = new Bond(hydro2, carb1, FULL);
+    model.needsUpdates.push(hydro2_carb1);
+    const carb1_meth1 = new Bond(carb1, meth1, FRONT_SLANT);
+    model.needsUpdates.push(carb1_meth1);
+    
     
     model.setT = function(newT, revQuat) {
         model.t = newT;
@@ -134,14 +145,20 @@ function makeE2(model, props) {
         if (newT < 0.45) {
             carb1_carb2.setState(FULL);
             carb2_chlor.setState(FULL);
+            hydro2_oh.setState(BROKEN);
+            hydro2_carb1.setState(FULL);
         }
         else if (newT > 0.55) {
             carb1_carb2.setState(DOUBLE);
             carb2_chlor.setState(BROKEN);
+            hydro2_oh.setState(FULL);
+            hydro2_carb1.setState(BROKEN);
         }
         else {
             carb1_carb2.setState(FULL_PARTIAL);
             carb2_chlor.setState(PARTIAL);
+            hydro2_oh.setState(PARTIAL);
+            hydro2_carb1.setState(PARTIAL);
         }
         
         // Atoms/groups need to be updated before their bonds
