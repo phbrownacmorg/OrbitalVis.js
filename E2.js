@@ -40,7 +40,8 @@ function makeE2(model, props) {
     model.needsUpdates.push(hydro3);
     
     const meth2 = new Methyl('CH3', 20, 30);
-    carb2.addToOrbital(2, meth2, S_RADIUS);
+    carb2.addToOrbital(2, meth2, SP3_SP3_BOND_LENGTH);
+    meth2.rotation.set(0, Math.PI, 0);
     model.needsUpdates.push(meth2);
     
     const hydro2 = new SAtom('H');
@@ -81,7 +82,8 @@ function makeE2(model, props) {
     model.needsUpdates.push(hydro1);
     
     const meth1 = new Methyl('CH3', -40, -30);
-    carb1.addToOrbital(3, meth1, S_RADIUS);
+    carb1.addToOrbital(3, meth1, SP3_SP3_BOND_LENGTH);
+    meth1.rotation.set(0, Math.PI, 0)
     model.needsUpdates.push(meth1);
     
     // Bonds
