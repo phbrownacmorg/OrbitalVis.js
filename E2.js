@@ -35,6 +35,14 @@ function makeE2(model, props) {
     model.add(carb2);
     model.needsUpdates.push(carb2);
     
+    const hydro3 = new SAtom('H', 'H', 45, -40);
+    carb2.addToOrbital(3, hydro3, S_RADIUS);
+    model.needsUpdates.push(hydro3);
+    
+    const meth2 = new Methyl('CH3', 20, 30);
+    carb2.addToOrbital(2, meth2, S_RADIUS);
+    model.needsUpdates.push(meth2);
+    
     const hydro2 = new SAtom('H');
     // Figure out the position of hydro2 relative to the center of carb1
     hydro2.position.set((-1/3.0), Math.sin(RELAXED_ANGLE), 0);
@@ -79,15 +87,17 @@ function makeE2(model, props) {
     model.needsUpdates.push(carb1_hydro1);
     const carb2_chlor = new Bond(carb2, chlor, FULL);
     model.needsUpdates.push(carb2_chlor);
+    const carb2_hydro3 = new Bond(carb2, hydro3, FRONT_SLANT);
+    model.needsUpdates.push(carb2_hydro3);
+    const carb2_meth2 = new Bond(carb2, meth2, BACK_SLANT);
+    model.needsUpdates.push(carb2_meth2);
     
     model.setT = function(newT, revQuat) {
         model.t = newT;
         
         // Set the proportions of each carbon's 
         // orbital 0
-        const t0 =
-            THREE.Math.clamp((newT - 0.05)/0.9,
-                            0, 1);
+        const t0 = THREE.Math.clamp((newT - 0.05)/0.9, 0, 1);
         //console.log(t0);
         const insideOutness = Math.min(0.5, t0/2);
         carb1.setInsideOutness(insideOutness);
@@ -98,10 +108,8 @@ function makeE2(model, props) {
         carb1.setP0Divergence(divergence);
         carb2.setP0Divergence(divergence);
 
-        carb1.rotation.set(0, 0,
-            THREE.Math.lerp(RELAXED_ANGLE,                                     Math.PI/2, t0));
-        carb2.rotation.set(0, 0, 
-                           Math.PI + carb1.rotation.z);
+        carb1.rotation.set(0, 0, THREE.Math.lerp(RELAXED_ANGLE, Math.PI/2, t0));
+        carb2.rotation.set(0, 0, Math.PI + carb1.rotation.z);
         
         if (newT < 0.4) {
             oh.position.lerpVectors(oh.start, oh.close1, newT/0.4);
@@ -109,25 +117,19 @@ function makeE2(model, props) {
             chlor.position.copy(chlor.start);
         }
         else if (newT < 0.5) {
-            oh.position.lerpVectors(oh.close1, oh.close2, 
-                                    (newT - 0.4)/0.1);
-            hydro2.position.lerpVectors(hydro2.start, hydro2.bind,
-                                        (newT - 0.4)/0.1);
-            chlor.position.lerpVectors(chlor.start, chlor.mid,
-                                        (newT - 0.4)/0.2);
+            oh.position.lerpVectors(oh.close1, oh.close2, (newT - 0.4)/0.1);
+            hydro2.position.lerpVectors(hydro2.start, hydro2.bind, (newT - 0.4)/0.1);
+            chlor.position.lerpVectors(chlor.start, chlor.mid, (newT - 0.4)/0.2);
         }
         else if (newT < 0.6) {
-            oh.position.lerpVectors(oh.close2, oh.close1,
-                                    (newT - 0.5)/0.1);
+            oh.position.lerpVectors(oh.close2, oh.close1, (newT - 0.5)/0.1);
             hydro2.position.addVectors(oh.position, hydro2.offset);
-            chlor.position.lerpVectors(chlor.start, chlor.mid,
-                                        (newT - 0.4)/0.2);
+            chlor.position.lerpVectors(chlor.start, chlor.mid, (newT - 0.4)/0.2);
         }
         else {
             oh.position.lerpVectors(oh.close1, oh.start, (newT-0.6)/0.4);
             hydro2.position.addVectors(oh.position, hydro2.offset);
-            chlor.position.lerpVectors(chlor.mid, chlor.end, 
-                                       (newT - 0.6)/0.4);
+            chlor.position.lerpVectors(chlor.mid, chlor.end, (newT - 0.6)/0.4);
         }
         
         // Update the Bonds
