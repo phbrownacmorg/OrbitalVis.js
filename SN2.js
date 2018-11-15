@@ -5,20 +5,16 @@
 /* global BACK_SLANT */
 /* global FRONT_SLANT */
 
-/* global makeSAtom */
+/* global Hydroxide */
+/* global SAtom */
 /* global S_RADIUS */
 /* global SP3Atom */
 /* global SP3_SP3_BOND_LENGTH */
 
-/* global makeHydroxide */
-
 /* global THREE */
 
-function makeSN2() {
-    const model = new THREE.Group();
-    model.needsUpdates = [];
-    
-    const oh = makeHydroxide('HO');
+function makeSN2(model, props) {    
+    const oh = new Hydroxide('HO');
     oh.start = new THREE.Vector3(-2 * SP3_SP3_BOND_LENGTH - 100, 0, 0);
     oh.end = new THREE.Vector3(-2 * SP3_SP3_BOND_LENGTH, 0, 0);
     oh.position.copy(oh.start);
@@ -33,7 +29,7 @@ function makeSN2() {
     model.needsUpdates.push(carb_oh);
     
     for (let i = 1; i < 4; i++) {
-        const hydro = makeSAtom('H');
+        const hydro = new SAtom('H');
         carb.addToOrbital(i, hydro, S_RADIUS);
         model.needsUpdates.push(hydro);
         const bond_states = [undefined, FULL, BACK_SLANT, FRONT_SLANT];
@@ -78,6 +74,4 @@ function makeSN2() {
             item.update2D(revQuat);
         }
     };
-    
-    return model;
 }

@@ -5,20 +5,19 @@
 /* global BACK_SLANT */
 /* global FRONT_SLANT */
 
-/* global makeSAtom */
+/* global SAtom */
 /* global RELAXED_ANGLE */
 /* global S_RADIUS */
 /* global SP3Atom */
 /* global SP3_SP3_BOND_LENGTH */
 
-/* global makeHydroxide */
+/* global Hydroxide */
+/* global Methyl */
 
 /* global THREE */
 
-function makeE1() {
+function makeE1(model, props) {
     const MAX_WITHDRAWAL = 5 * SP3_SP3_BOND_LENGTH;
-    const model = new THREE.Group();
-    model.needsUpdates = [];
 
     const carb1 = new SP3Atom('C');
     carb1.position.set(-SP3_SP3_BOND_LENGTH, 0, 0);
@@ -33,7 +32,7 @@ function makeE1() {
     model.needsUpdates.push(carb2);
 
     //carb1.add(new THREE.AxesHelper(100 * (1 - DEFAULT_LOBE_PROP) + S_RADIUS));
-    const hydro2 = makeSAtom('H');
+    const hydro2 = new SAtom('H');
     // Start it out at carb1's position
     hydro2.position.copy(carb1.position);
     // Move it out orbital 0 the proper distance
@@ -48,11 +47,11 @@ function makeE1() {
     hydro2.end = hydro2.start.clone()
 	.setX(-1.25 * MAX_WITHDRAWAL + S_SP3_BOND_LENGTH);
     
-    const hydro1 = makeSAtom('H');
+    const hydro1 = new SAtom('H');
     carb1.addToOrbital(3, hydro1, S_RADIUS);
     model.needsUpdates.push(hydro1);
 
-    const meth3 = makeMethyl();
+    const meth3 = new Methyl('CH3', 30, -50);
     meth3.rotation.set(-7 * Math.PI/12, 0, Math.PI);
     carb2.addToOrbital(3, meth3, SP3_SP3_BOND_LENGTH);
     model.needsUpdates.push(meth3);
@@ -65,17 +64,17 @@ function makeE1() {
     chlor.end = chlor.mid.clone().add(new THREE.Vector3(MAX_WITHDRAWAL, 0, 0));
     model.needsUpdates.push(chlor);
 
-    const meth1 = makeMethyl();
+    const meth1 = new Methyl('CH3', -30, 50);
     meth1.rotation.set(0, 0, Math.PI);
     carb1.addToOrbital(2, meth1, SP3_SP3_BOND_LENGTH);
     model.needsUpdates.push(meth1);
     
-    const meth2 = makeMethyl();
+    const meth2 = new Methyl();
     meth2.rotation.set(0, 0, Math.PI);
     carb2.addToOrbital(2, meth2, SP3_SP3_BOND_LENGTH);
     model.needsUpdates.push(meth2);
     
-    const oh = makeHydroxide('HO');
+    const oh = new Hydroxide('HO');
     oh.position.set(-1.25 * MAX_WITHDRAWAL, hydro2.start.y, 0);
     oh.start = oh.position.clone();
     oh.mid1 = hydro2.mid.clone().add(new THREE.Vector3(-S_SP3_BOND_LENGTH,
@@ -193,7 +192,5 @@ function makeE1() {
         }	
     }
     
-
     model.add(new THREE.AxesHelper(100));
-    return model;
 }

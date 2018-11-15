@@ -7,29 +7,30 @@
 /* global BACK_SLANT */
 /* global FRONT_SLANT */
 
-/* global makeSAtom */
+/* global SAtom */
 /* global SP3Atom */
 /* global RELAXED_ANGLE */
 /* global S_RADIUS */
 /* global S_SP3_BOND_LENGTH */
 /* global SP3_SP3_BOND_LENGTH */
 
+/* global Ethyl */
+/* global Methyl */
+/* global Water */
+
 /* global THREE */
 
-function makeSN1(props) {
+function makeSN1(model, props) {
     const MAX_WITHDRAWAL = 50 * SP3_SP3_BOND_LENGTH;
-    const model = new THREE.Group();
-    model.needsUpdates = [];
-    model.attackSide = props.reaction.charAt(4); // 'L' or 'R'
-    if (props.reaction.charAt(4) === 'L') {
-        model.xSign = -1;
-	var water = makeWater('H2O');
+    let water;
+    if (model.xSign === -1) { // Left-side attack
+        water = new Water('H2O');
     }
-    else {  // 'R'
-	model.xSign = 1;
-	water = makeWater('OH2');
-	water.rotation.set(0, Math.PI, 0);
+    else if (model.xSign === 1) { // Right-side attack
+        water = new Water('OH2');
+        water.rotation.set(0, Math.PI, 0);
     }
+    
     water.start = new THREE.Vector3(model.xSign * MAX_WITHDRAWAL, 0, 0);
     water.mid = new THREE.Vector3(model.xSign * (2 * SP3_SP3_BOND_LENGTH + 100),
 				  0, 0);
@@ -52,17 +53,17 @@ function makeSN1(props) {
     model.add(carb);
     model.needsUpdates.push(carb);
 
-    const hydro = makeSAtom('H');
+    const hydro = new SAtom('H');
     carb.addToOrbital(3, hydro, S_RADIUS);
     model.needsUpdates.push(hydro);
 
-    const ethyl = makeEthyl();
+    const ethyl = new Ethyl();
     ethyl.rotation.set(Math.PI/2, 0, Math.PI);
     ethyl.add(new THREE.AxesHelper(100));
     carb.addToOrbital(1, ethyl, SP3_SP3_BOND_LENGTH);
     model.needsUpdates.push(ethyl);
 
-    const ch3 = makeMethyl();
+    const ch3 = new Methyl();
     ch3.rotation.set(Math.PI/6, 0, Math.PI);
     carb.addToOrbital(2, ch3, SP3_SP3_BOND_LENGTH);
     model.needsUpdates.push(ch3);
@@ -147,6 +148,5 @@ function makeSN1(props) {
         }	
     }
 
-    model.add(new THREE.AxesHelper(100));
-    return model;    
+    model.add(new THREE.AxesHelper(100));  
 }

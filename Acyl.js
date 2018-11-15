@@ -7,27 +7,20 @@
 /* global BACK_SLANT */
 /* global FRONT_SLANT */
 
-/* global makeSAtom */
+/* global SAtom */
 /* global SP3Atom */
 /* global RELAXED_ANGLE */
 /* global S_SP3_BOND_LENGTH */
 /* global SP3_SP3_BOND_LENGTH */
 
-/* global makeEthyl */
-/* global makeMethyl */
+/* global Ethyl */
+/* global Methyl */
 
 /* global THREE */
 
-function makeAcyl(props) {
-    const model = new THREE.Group();
-    model.needsUpdates = [];
-    model.attackSide = props.reaction.charAt(5); // 'L' or 'R'
-    model.xSign = 1; // 'R'
-    if (props.reaction.charAt(5) === 'L') {
-        model.xSign = -1;
-    }
+function makeAcyl(model, props) {
     
-    const nucleophile = makeSAtom('H');
+    const nucleophile = new SAtom('H');
     nucleophile.start = new THREE.Vector3(model.xSign * (S_SP3_BOND_LENGTH + 80), 0, 0);
     nucleophile.end = new THREE.Vector3(model.xSign * S_SP3_BOND_LENGTH, 0, 0);
     nucleophile.position.copy(nucleophile.start);
@@ -49,14 +42,14 @@ function makeAcyl(props) {
     carb.addToOrbital(1, oxy, SP3_SP3_BOND_LENGTH);
     model.needsUpdates.push(oxy);
     
-    const ch3 = makeMethyl();
+    const ch3 = new Methyl();
     //ch3.add(new THREE.AxesHelper(30));
     ch3.setInsideOutness(1.0);
     ch3.rotateX(1.5 * RELAXED_ANGLE + 0.25 * Math.PI);  // Roll an H straight down
     carb.addToOrbital(3, ch3, SP3_SP3_BOND_LENGTH);
     model.needsUpdates.push(ch3);
 
-    const ethyl = makeEthyl();
+    const ethyl = new Ethyl();
     ethyl.setInsideOutness(1.0);
     ethyl.rotateX(1.5 * RELAXED_ANGLE + 0.25 * Math.PI);
     carb.addToOrbital(2, ethyl, SP3_SP3_BOND_LENGTH);
@@ -111,5 +104,4 @@ function makeAcyl(props) {
     }
     
     //model.add(new THREE.AxesHelper(100));
-    return model;
 }
