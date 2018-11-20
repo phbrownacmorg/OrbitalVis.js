@@ -5,6 +5,7 @@
 /* global makeE1 */
 /* global makeE2 */
 /* global makeEA2A */
+/* global makeSAPA */
 /* global makeSN1 */
 /* global makeSN2 */
 
@@ -153,6 +154,10 @@ class Model extends THREE.Group {
 			case 'EA2A-L':
 			case 'EA2A-R':
 				makeEA2A(this, props);
+				break;
+            case 'SAPA-L':
+			case 'SAPA-R':
+				makeSAPA(this, props);
 				break;
 			case 'SN1-L':
 			case 'SN1-R':
