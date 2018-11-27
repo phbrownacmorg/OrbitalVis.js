@@ -38,17 +38,30 @@ function makeSAPA(model, props) {
     
     model.t = 0;
     model.setT = function(newT, revQuat) {
-	model.t = newT;
-    let insideOutnessT = (newT - 0.3) * (1 / 0.6);
-    insideOutnessT =THREE.Math.clamp(insideOutnessT, 0, 1);
-    //console.log(insideOutnessT);
-    const insideOutnessOffset = insideOutnessT / 2;
-    const diverg = 1.0 - (4 * Math.pow(insideOutnessOffset, 2));
-    console.log(diverg);
-    bottom_carb.setInsideOutness(0.5 - insideOutnessOffset);
-    bottom_carb.setP0Divergence(diverg);
-    top_carb.setInsideOutness(0.5 + insideOutnessOffset);
-    top_carb.setP0Divergence(diverg);        
+		model.t = newT;
+		
+		const oxyT = THREE.Math.clamp((newT - 0.1)/0.8, 0, 1);
+		const zeroOneAngle = -model.xSign * THREE.Math.lerp(RELAXED_ANGLE, Math.PI/3,
+											oxyT);
+		
+		let insideOutnessT = (newT - 0.3) * (1 / 0.6);
+		insideOutnessT = THREE.Math.clamp(insideOutnessT, 0, 1);
+		//console.log(insideOutnessT);
+		const insideOutnessOffset = insideOutnessT / 2;
+		const diverg = 1 - (4 * Math.pow(insideOutnessOffset, 2));
+		console.log(diverg);
+		bottom_carb.setInsideOutness(0.5 - insideOutnessOffset);
+		bottom_carb.setP0Divergence(diverg);
+		bottom_carb.setZeroOneAngle(-model.xSign *
+									Math.min(Math.abs(zeroOneAngle),
+										Math.abs(bottom_carb.zeroOneAngle)));
+		bottom_carb.rotation.set(0, 0, -Math.PI + bottom_carb.zeroOneAngle);
+		top_carb.setInsideOutness(0.5 + insideOutnessOffset);
+		top_carb.setP0Divergence(diverg);        
+		top_carb.setZeroOneAngle(Math.PI + model.xSign *
+								 Math.min(Math.abs(zeroOneAngle),
+			          			 		Math.abs(top_carb.zeroOneAngle)));
+		top_carb.rotation.set(0, 0, -Math.PI/2 + top_carb.zeroOneAngle);
     }
 
 }
