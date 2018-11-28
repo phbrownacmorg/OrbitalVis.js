@@ -1,3 +1,23 @@
+/*
+ * Copyright 2018 Peter Brown <peter.brown@converse.edu>,
+ *                Lorelei Johns <ldjohns001@converse.edu>, and
+ *                Alexis Turner <abturner002@converse.edu>
+ *
+ * This program is free software.  You can redistribute it and/or
+ * modify it under the terms of the GNU Affero General Public License
+ * as published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY, without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public
+ * License along with this program. If not, see
+ * <http://www.gnu.org/licenses/>.
+ */
+
 /* global THREE */
 
 // Beware: COLORS (for THREE.js) uses X11 color names, which are only
@@ -104,15 +124,17 @@ class POrbital extends THREE.Group {
     }
     
     updatePositionsScales() {
-        let divergenceFactor = Math.tan(this.centralAngle) / Math.tan(MIN_CENTRAL_ANGLE);
-        let prop = this.proportion;
+        const divergenceFactor = Math.tan(this.centralAngle)
+	      / Math.tan(MIN_CENTRAL_ANGLE);
+        const prop = this.proportion;
+	const oneMProp = 1 - prop;
         //if (this.centralAngle !== MIN_CENTRAL_ANGLE) {
             //console.log(divergenceFactor, prop);
         //}
         this.lobe1.position.set(-50 * prop, 0, 0);
         this.lobe1.scale.set(prop * divergenceFactor, prop, prop);
-        this.lobe0.position.set(50 * (1 - prop), 0, 0);
-        this.lobe0.scale.set((1 - prop) * divergenceFactor, (1 - prop), 1 - prop);        
+        this.lobe0.position.set(50 * oneMProp, 0, 0);
+        this.lobe0.scale.set(oneMProp * divergenceFactor, oneMProp, oneMProp);
     }
 
     static makeHalfPOrbital(scalingFactor, material) {
@@ -120,8 +142,8 @@ class POrbital extends THREE.Group {
         const SEGS = 64;
         let geom = new THREE.ConeGeometry(R, 100, SEGS, 1, false);
         let cone = new THREE.Mesh(geom, material);
-        geom = new THREE.SphereGeometry(R, SEGS, 8, 0, Math.PI*2, 
-                                        Math.PI/2, Math.PI);
+        geom = new THREE.SphereGeometry(R, SEGS, 8, 0, Math.PI*2,
+					Math.PI/2, Math.PI);
         let cap = new THREE.Mesh(geom, material);
         cap.translateY(-50);
         cone.add(cap);
@@ -147,7 +169,8 @@ class SP3Atom extends AtomGroup {
         
         this.orbitals = [];
         for (let i = 0; i < 4; i++) {
-            this.orbitals.push(new POrbital(DEFAULT_LOBE_PROP, MIN_DIVERGENCE, material));
+            this.orbitals.push(new POrbital(DEFAULT_LOBE_PROP, MIN_DIVERGENCE,
+					    material));
         }
 
         this.setZeroOneAngle(RELAXED_ANGLE);
@@ -167,20 +190,33 @@ class SP3Atom extends AtomGroup {
     
     setInsideOutness(newProp) {
         this.insideOutness = newProp;
-        this.orbitals[0].setLobeProportion((1 - newProp) * DEFAULT_LOBE_PROP
-                                            + newProp * (1 - DEFAULT_LOBE_PROP));
-        this.setZeroOneAngle((1 - newProp) * RELAXED_ANGLE
-                             + newProp * (Math.PI - RELAXED_ANGLE));
+        this.orbitals[0].setLobeProportion(
+	    THREE.Math.lerp(DEFAULT_LOBE_PROP, (1 - DEFAULT_LOBE_PROP),
+			    newProp));
+//		(1 - newProp) * DEFAULT_LOBE_PROP
+//                              + newProp * (1 - DEFAULT_LOBE_PROP));
+        this.setZeroOneAngle(THREE.Math.lerp(RELAXED_ANGLE,
+					     Math.PI - RELAXED_ANGLE, newProp));
+//	    (1 - newProp) * RELAXED_ANGLE
+//                             + newProp * (Math.PI - RELAXED_ANGLE));
     }
 
-    setZeroOneAngle(angle) {
+    setZeroOneAngle(angle, lastOrbital = 3) {
         this.zeroOneAngle = angle;
-        for (let i = 1; i < 4; i++) {
+
+	// 0 when insideOutness = 0.5, 1 when insideOutness = 0 or 1
+	const propT = Math.abs(0.5 - this.insideOutness)/0.5;
+	
+        for (let i = 1; i <= lastOrbital; i++) {
             let axis = new THREE.Vector3(0, 0, -1);
             axis.applyAxisAngle(new THREE.Vector3(1, 0, 0), 
                                 (i-1) * 2 * Math.PI/3);
-            this.orbitals[i].setRotationFromAxisAngle(axis.normalize(), 
-                                                        this.zeroOneAngle);
+	    let orbAngle = this.zeroOneAngle;
+	    if ((i > 1) && (orbAngle < (Math.PI/2))) {
+		orbAngle = THREE.lerp(orbAngle, Math.PI - (orbAngle/2), propT);
+	    }
+            this.orbitals[i].setRotationFromAxisAngle(axis.normalize(),
+						      orbAngle);
         }
     }
 }
