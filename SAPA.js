@@ -31,6 +31,8 @@ function makeSAPA(model, props) {
     bottom_carb.rotation.z = -Math.PI/2;
     top_carb.addToOrbital(1, bottom_carb, SP3_SP3_BOND_LENGTH);
     model.needsUpdates.push(bottom_carb);
+	
+	top_carb.orbitals[1].orbitalToWorld();
     
     const reactive_O = new SP3Atom('O');
     reactive_O.position.set(model.xSign * 4 * SP3_SP3_BOND_LENGTH, 0, 0);
@@ -63,7 +65,7 @@ function makeSAPA(model, props) {
 		//console.log(insideOutnessT);
 		const insideOutnessOffset = insideOutnessT / 2;
 		const diverg = 1 - (4 * Math.pow(insideOutnessOffset, 2));
-		console.log(diverg);
+		//console.log(diverg);
 		bottom_carb.setInsideOutness(0.5 - insideOutnessOffset);
 		bottom_carb.setP0Divergence(diverg);
 		bottom_carb.setZeroOneAngle(-model.xSign * Math.min(Math.abs(zeroOneAngle), Math.abs(bottom_carb.zeroOneAngle)));
