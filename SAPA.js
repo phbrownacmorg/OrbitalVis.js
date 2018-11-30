@@ -40,13 +40,13 @@ function makeSAPA(model, props) {
     model.add(reactive_O);
     model.needsUpdates.push(reactive_O);
     
-//     const resonance_O = new SP3Atom('O');
-//     model.orbitaltoWorld(resonance_O);
-//     model.needsUpdates.push(resonance_O);
+    const resonance_O = new SP3Atom('O');
+    resonance_O.position.copy(reactive_O.orbitals[3].orbitalToWorld(new THREE.Vector3(SP3_SP3_BOND_LENGTH + SP3_SP3_BOND_LENGTH, 0, 0)));
+    model.needsUpdates.push(resonance_O);
     
-//     const end_H = new SAtom('H');
-//     model.orbitaltoWorld(end_H);
-//     model.needsUpdates.push(end_H);
+    const end_H = new SAtom('H');
+    end_H.position.copy(reactive_O.orbitals[3].orbitalToWorld(new THREE.Vector3(SP3_SP3_BOND_LENGTH + SP3_SP3_BOND_LENGTH, 0, 0)));
+     model.needsUpdates.push(end_H);
     
     //bonds 
     const carb_carb = new Bond(top_carb, bottom_carb, DOUBLE);
@@ -55,10 +55,10 @@ function makeSAPA(model, props) {
     model.needsUpdates.push(bottom_carb_O);
     const top_carb_O = new Bond( top_carb, reactive_O, BROKEN);
     model.needsUpdates.push(top_carb_O);
-//     const reactive_0_H = new Bond(reactive_O, end_H, FULL);
-//     model.needsUpdates.push(reactive_0_H);
-//     const resonance_0_reactive_0 = new Bond(reactive_O, resonance_O,  FULL);
-//     model.needsUpdates.push(resonance_0_reactive_0);
+    const reactive_0_H = new Bond(reactive_O, end_H, FULL);
+    model.needsUpdates.push(reactive_0_H);
+    const resonance_0_reactive_0 = new Bond(reactive_O, resonance_O,  FULL);
+    model.needsUpdates.push(resonance_0_reactive_0);
     
     //update bonds
     
@@ -95,34 +95,34 @@ function makeSAPA(model, props) {
         
         
         if (newT < 0.23) {
-            //reactive_0_H.setState(FULL);
-            //resonance_0_reactive_0.setState(FULL);
+            reactive_0_H.setState(FULL);
+            resonance_0_reactive_0.setState(FULL);
             bottom_carb_O.setState(BROKEN);
     	    top_carb_O.setState(BROKEN);
             
         }
         else if (newT > 0.45) {
-//             reactive_0_H.setState(PARTIAL);
-//             resonance_0_reactive_0.setState(PARTIAL);
+            reactive_0_H.setState(PARTIAL);
+            resonance_0_reactive_0.setState(PARTIAL);
              bottom_carb_O.setState(BROKEN);
              top_carb_O.setState(BROKEN);
         }
         else if (newT > 0.7) {
-//             reactive_0_H.setState(BROKEN);
-//             resonance_0_reactive_0.setState(BROKEN);
+            reactive_0_H.setState(BROKEN);
+            resonance_0_reactive_0.setState(BROKEN);
             bottom_carb_O.setState(PARTIAL);
             top_carb_O.setState(PARTIAL);
         }
         
         else if (newT > 0.8) {
-//             reactive_0_H.setState(BROKEN);
-//             resonance_0_reactive_0.setState(BROKEN);
+            reactive_0_H.setState(BROKEN);
+            resonance_0_reactive_0.setState(BROKEN);
             bottom_carb_O.setState(PARTIAL);
             top_carb_O.setState(PARTIAL);
         }
         else {
-//             reactive_0_H.setState(BROKEN);
-//             resonance_0_reactive_0.setState(BROKEN);
+            reactive_0_H.setState(BROKEN);
+            resonance_0_reactive_0.setState(BROKEN);
             bottom_carb_O.setState(FULL);
             top_carb_O.setState(FULL);
         }
