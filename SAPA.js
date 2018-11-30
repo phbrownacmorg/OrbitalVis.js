@@ -34,9 +34,11 @@ function makeSAPA(model, props) {
 	
     const reactive_O = new SP3Atom('O');
     reactive_O.position.set(model.xSign * 4 * SP3_SP3_BOND_LENGTH, 0, 0);
-    reactive_O.rotation.set(0, 0, RELAXED_ANGLE/2.0 + (Math.PI/2 + (model.xSign * Math.PI/2)));
+    reactive_O.rotation.set(
+	0, 0, RELAXED_ANGLE/2.0 + (Math.PI/2 + (model.xSign * Math.PI/2)));
     reactive_O.start = reactive_O.position.clone(); 
-    reactive_O.end = new THREE.Vector3(model.xSign * 2 * SP3_SP3_BOND_LENGTH * (Math.sqrt(3.0) / 2), 0, 0); 
+    reactive_O.end = new THREE.Vector3(model.xSign * 2 * SP3_SP3_BOND_LENGTH
+				       * (Math.sqrt(3.0) / 2), 0, 0); 
     model.add(reactive_O);
     model.needsUpdates.push(reactive_O);
     
@@ -53,29 +55,35 @@ function makeSAPA(model, props) {
     
     model.t = 0;
     model.setT = function(newT, revQuat) {
-		model.t = newT;
-		
-		const oxyT = THREE.Math.clamp((newT - 0.1)/0.8, 0, 1);
-		const zeroOneAngle = -model.xSign * THREE.Math.lerp(RELAXED_ANGLE, Math.PI/3, oxyT);
-		
-		let insideOutnessT = (newT - 0.3) * (1 / 0.6);
-		insideOutnessT = THREE.Math.clamp(insideOutnessT, 0, 1);
-		//console.log(insideOutnessT);
-		const insideOutnessOffset = insideOutnessT / 2;
-		const diverg = 1 - (4 * Math.pow(insideOutnessOffset, 2));
-		//console.log(diverg);
-		bottom_carb.setInsideOutness(0.5 - insideOutnessOffset);
-		bottom_carb.setP0Divergence(diverg);
-		bottom_carb.setZeroOneAngle(-model.xSign * Math.min(Math.abs(zeroOneAngle), Math.abs(bottom_carb.zeroOneAngle)));
-		bottom_carb.rotation.set(0, 0, -Math.PI + bottom_carb.zeroOneAngle);
-		top_carb.setInsideOutness(0.5 + insideOutnessOffset);
-		top_carb.setP0Divergence(diverg);        
-		top_carb.setZeroOneAngle(Math.PI + model.xSign * Math.min(Math.abs(zeroOneAngle), Math.abs(top_carb.zeroOneAngle)));
-		top_carb.rotation.set(0, 0, -Math.PI/2 + top_carb.zeroOneAngle);
+	model.t = newT;
+	
+	const oxyT = THREE.Math.clamp((newT - 0.1)/0.8, 0, 1);
+	const zeroOneAngle = THREE.Math.lerp(RELAXED_ANGLE, Math.PI/3, oxyT);
+	// Left-side: 109.5 -> 60
+	// Right-side: -109.5 -> -60
+	let insideOutnessT = (newT - 0.3) * (1 / 0.6);
+	insideOutnessT = THREE.Math.clamp(insideOutnessT, 0, 1);
+	//console.log(insideOutnessT);
+	const insideOutnessOffset = model.xSign * insideOutnessT / 2;
+	const diverg = 1 - (4 * Math.pow(insideOutnessOffset, 2));
+	//console.log(diverg);
+	bottom_carb.setInsideOutness(0.5 + insideOutnessOffset);
+	bottom_carb.setP0Divergence(diverg);
+	bottom_carb.setZeroOneAngle(
+	    THREE.Math.lerp(zeroOneAngle, Math.PI - zeroOneAngle,
+			    bottom_carb.insideOutness), 1);
+	bottom_carb.rotation.set(0, 0, -Math.PI + bottom_carb.zeroOneAngle);
+	top_carb.setInsideOutness(0.5 - insideOutnessOffset);
+	top_carb.setP0Divergence(diverg);        
+	top_carb.setZeroOneAngle(
+	    THREE.Math.lerp(zeroOneAngle, Math.PI - zeroOneAngle,
+			    top_carb.insideOutness), 1);
+	top_carb.rotation.set(0, 0, -Math.PI/2 + top_carb.zeroOneAngle);
         
         reactive_O.position.lerpVectors(reactive_O.start, reactive_O.end, oxyT);
-        reactive_O.setZeroOneAngle(THREE.Math.lerp(RELAXED_ANGLE, Math.PI/3, oxyT));
-        reactive_O.rotation.set(0, 0, (reactive_O.zeroOneAngle/2) + (Math.PI/2) + (model.xSign * (Math.PI/2)));
+        reactive_O.setZeroOneAngle(zeroOneAngle, 1);
+        reactive_O.rotation.set(0, 0, (reactive_O.zeroOneAngle/2) + (Math.PI/2)
+				+ (model.xSign * (Math.PI/2)));
     
         
         

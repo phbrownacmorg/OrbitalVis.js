@@ -181,20 +181,39 @@ class SP3Atom extends AtomGroup {
     
     setInsideOutness(newProp) {
         this.insideOutness = newProp;
-        this.orbitals[0].setLobeProportion((1 - newProp) * DEFAULT_LOBE_PROP
-                                            + newProp * (1 - DEFAULT_LOBE_PROP));
-        this.setZeroOneAngle((1 - newProp) * RELAXED_ANGLE
-                             + newProp * (Math.PI - RELAXED_ANGLE));
+        this.orbitals[0].setLobeProportion(
+	    THREE.Math.lerp(DEFAULT_LOBE_PROP, 1 - DEFAULT_LOBE_PROP, newProp));
+	    // (1 - newProp) * DEFAULT_LOBE_PROP
+            //              + newProp * (1 - DEFAULT_LOBE_PROP));
+        this.setZeroOneAngle(THREE.Math.lerp(RELAXED_ANGLE,
+					     Math.PI - RELAXED_ANGLE, newProp));
+                             //+ newProp * (Math.PI - RELAXED_ANGLE));
     }
 
-    setZeroOneAngle(angle) {
+    setZeroOneAngle(angle, lastOrbital = 3) {
         this.zeroOneAngle = angle;
         for (let i = 1; i < 4; i++) {
-            let axis = new THREE.Vector3(0, 0, -1);
-            axis.applyAxisAngle(new THREE.Vector3(1, 0, 0), 
-                                (i-1) * 2 * Math.PI/3);
-            this.orbitals[i].setRotationFromAxisAngle(axis.normalize(), 
-                                                        this.zeroOneAngle);
+	    if (i <= lastOrbital) {
+		let axis = new THREE.Vector3(0, 0, -1);
+		axis.applyAxisAngle(new THREE.Vector3(1, 0, 0), 
+                                    (i-1) * 2 * Math.PI/3);
+		this.orbitals[i].setRotationFromAxisAngle(axis.normalize(),
+							  this.zeroOneAngle);
+	    }
+	    else { // i > lastOrbital
+		// This is wrong.  The 2 and 3 orbitals, in this case, should
+		// be in the plane containing the nucleus and the midpoint of
+		// the 0 and 1 orbitals, perpendicular to the plane defined by
+		// the 0 and 1 orbitals.  But my geometry is apparently not good
+		// enough to calculate that plane and then rotate in it.
+		let axis = new THREE.Vector3(0, 0, -1);
+		axis.applyAxisAngle(new THREE.Vector3(1, 0, 0), 
+                                    (i-1) * 2 * Math.PI/3);
+		this.orbitals[i].setRotationFromAxisAngle(
+		    axis.normalize(),
+		    THREE.Math.lerp(RELAXED_ANGLE, Math.PI - RELAXED_ANGLE,
+				    this.insideOutness));
+	    }
         }
     }
 }
