@@ -40,13 +40,15 @@ function makeSAPA(model, props) {
     model.add(reactive_O);
     model.needsUpdates.push(reactive_O);
     
-    const resonance_O = new SP3Atom('O');
-    resonance_O.position.copy(reactive_O.orbitals[3].orbitalToWorld(new THREE.Vector3(SP3_SP3_BOND_LENGTH + SP3_SP3_BOND_LENGTH, 0, 0)));
+    const resonance_O = new SP3Atom('O', 'O', -30, -30, 0);
+    resonance_O.position.copy(reactive_O.orbitals[3].orbitalToWorld(new THREE.Vector3(SP3_SP3_BOND_LENGTH, 0, 0)));
+    model.add(resonance_O);
     model.needsUpdates.push(resonance_O);
     
     const end_H = new SAtom('H');
-    end_H.position.copy(reactive_O.orbitals[3].orbitalToWorld(new THREE.Vector3(SP3_SP3_BOND_LENGTH + SP3_SP3_BOND_LENGTH, 0, 0)));
-     model.needsUpdates.push(end_H);
+    end_H.position.copy(reactive_O.orbitals[3].orbitalToWorld(new THREE.Vector3(S_SP3_BOND_LENGTH + SP3_SP3_BOND_LENGTH, 0, 0)));
+    model.add(end_H); 
+    model.needsUpdates.push(end_H);
     
     //bonds 
     const carb_carb = new Bond(top_carb, bottom_carb, DOUBLE);
