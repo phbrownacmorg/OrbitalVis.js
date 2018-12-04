@@ -41,12 +41,12 @@ function makeSAPA(model, props) {
     model.needsUpdates.push(reactive_O);
     
     const resonance_O = new SP3Atom('O', 'O', -30, -30, 0);
-    resonance_O.position.copy(reactive_O.orbitals[3].orbitalToWorld(new THREE.Vector3(SP3_SP3_BOND_LENGTH, 0, 0)));
+    resonance_O.position.copy(reactive_O.orbitals[3].orbitalToWorld(new THREE.Vector3(2 * SP3_SP3_BOND_LENGTH, 0, 0)));
     model.add(resonance_O);
     model.needsUpdates.push(resonance_O);
     
     const end_H = new SAtom('H');
-    end_H.position.copy(reactive_O.orbitals[3].orbitalToWorld(new THREE.Vector3(S_SP3_BOND_LENGTH + SP3_SP3_BOND_LENGTH, 0, 0)));
+    end_H.position.copy(reactive_O.orbitals[2].orbitalToWorld(new THREE.Vector3(S_SP3_BOND_LENGTH, 0, 0)));
     model.add(end_H); 
     model.needsUpdates.push(end_H);
     
@@ -101,32 +101,37 @@ function makeSAPA(model, props) {
             resonance_0_reactive_0.setState(FULL);
             bottom_carb_O.setState(BROKEN);
     	    top_carb_O.setState(BROKEN);
+            carb_carb.setState(DOUBLE);
             
         }
-        else if (newT > 0.45) {
+        else if (newT < 0.45) {
             reactive_0_H.setState(PARTIAL);
             resonance_0_reactive_0.setState(PARTIAL);
-             bottom_carb_O.setState(BROKEN);
-             top_carb_O.setState(BROKEN);
+            bottom_carb_O.setState(BROKEN);
+            top_carb_O.setState(BROKEN);
+            carb_carb.setState(DOUBLE);
         }
-        else if (newT > 0.7) {
+        else if (newT < 0.7) {
             reactive_0_H.setState(BROKEN);
             resonance_0_reactive_0.setState(BROKEN);
             bottom_carb_O.setState(PARTIAL);
             top_carb_O.setState(PARTIAL);
+            carb_carb.setState(FULL_PARTIAL);
         }
         
-        else if (newT > 0.8) {
+        else if (newT < 0.8) {
             reactive_0_H.setState(BROKEN);
             resonance_0_reactive_0.setState(BROKEN);
             bottom_carb_O.setState(PARTIAL);
             top_carb_O.setState(PARTIAL);
+            carb_carb.setState(FULL_PARTIAL);
         }
         else {
             reactive_0_H.setState(BROKEN);
             resonance_0_reactive_0.setState(BROKEN);
             bottom_carb_O.setState(FULL);
             top_carb_O.setState(FULL);
+            carb_carb.setState(FULL);
         }
         
         // Atoms/groups need to be updated before their bonds
