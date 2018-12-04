@@ -42,11 +42,17 @@ function makeSAPA(model, props) {
     
     const resonance_O = new SP3Atom('O', 'O', -30, -30, 0);
     resonance_O.position.copy(reactive_O.orbitals[3].orbitalToWorld(new THREE.Vector3(2 * SP3_SP3_BOND_LENGTH, 0, 0)));
+	resonance_O.add(new THREE.AxesHelper(100));
+	resonance_O.rotation.set(0, 0, 0);
+//							 -Math.PI/2 
+//							 + model.xSign * Math.PI/2
+//							 + RELAXED_ANGLE);
     model.add(resonance_O);
     model.needsUpdates.push(resonance_O);
     
     const end_H = new SAtom('H');
     end_H.position.copy(reactive_O.orbitals[2].orbitalToWorld(new THREE.Vector3(S_SP3_BOND_LENGTH, 0, 0)));
+	end_H.start = end_H.position.clone();
     model.add(end_H); 
     model.needsUpdates.push(end_H);
     
@@ -62,8 +68,7 @@ function makeSAPA(model, props) {
     const resonance_0_reactive_0 = new Bond(reactive_O, resonance_O,  FULL);
     model.needsUpdates.push(resonance_0_reactive_0);
     
-    //update bonds
-    
+    //update bonds  
     
     model.t = 0;
     model.setT = function(newT, revQuat) {
