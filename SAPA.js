@@ -57,11 +57,30 @@ function makeSAPA(model, props) {
     model.add(resonance_O);
     model.needsUpdates.push(resonance_O);
 
+    
+    const carbonyl_C = new SP3Atom('C', 'C', -40, 0, 0);
+    carbonyl_C.position.copy(resonance_O.orbitals[1].orbitalToWorld(new THREE.Vector3(2 * SP3_SP3_BOND_LENGTH, 0, 0)));
+    carbonyl_C.setInsideOutness(0.5);
+    carbonyl_C.setP0Divergence(1);
+    carbonyl_C.rotation.set(0, model.xSign * ((1 + model.xSign) * Math.PI/2 + Math.PI/3 - 1.5 * RELAXED_ANGLE), Math.PI/2);
+    model.add(carbonyl_C);
+    model.needsUpdates.push(carbonyl_C);
+    
+    const double_bond_O = new SP3Atom('O');
+    double_bond_O.position.copy(carbonyl_C.orbitals[1].orbitalToWorld(new THREE.Vector3(2 * SP3_SP3_BOND_LENGTH, 0, 0)));
+    double_bond_O.setInsideOutness(0.5);
+    double_bond_O.setP0Divergence(1);
+    double_bond_O.rotation.set(0, model.xSign * (Math.PI/3 - 1.5 * RELAXED_ANGLE), model.xSign * Math.PI/2);
+    model.add(double_bond_O);
+    model.needsUpdates.push(double_bond_O);
+    
     const end_H = new SAtom('H');
     end_H.position.copy(reactive_O.orbitals[2].orbitalToWorld(new THREE.Vector3(S_SP3_BOND_LENGTH, 0, 0)));
     end_H.start = end_H.position.clone();
     model.add(end_H); 
     model.needsUpdates.push(end_H);
+    
+    
     
     //bonds 
     const carb_carb = new Bond(top_carb, bottom_carb, DOUBLE);
@@ -74,6 +93,8 @@ function makeSAPA(model, props) {
     model.needsUpdates.push(reactive_0_H);
     const resonance_0_reactive_0 = new Bond(reactive_O, resonance_O,  FULL);
     model.needsUpdates.push(resonance_0_reactive_0);
+    const resonance_O_carbonyl_C = new Bond(resonance_O, carbonyl_C, FULL);
+    model.needsUpdates.push(resonance_O_carbonyl_C);
     
     //update bonds  
     
@@ -120,12 +141,15 @@ function makeSAPA(model, props) {
 	resonance_O.rotateOnWorldAxis(unitY, model.xSign *
 				      (Math.PI - 1.5 * RELAXED_ANGLE));
         
+    carbonyl_C.orbitals[0].rotation.x = oxyT * -model.xSign * Math.PI/3;
+        
         if (newT < 0.23) {
             reactive_0_H.setState(FULL);
             resonance_0_reactive_0.setState(FULL);
             bottom_carb_O.setState(BROKEN);
     	    top_carb_O.setState(BROKEN);
             carb_carb.setState(DOUBLE);
+            resonance_O_carbonyl_C.setState(FULL);
             
         }
         else if (newT < 0.45) {
@@ -134,6 +158,7 @@ function makeSAPA(model, props) {
             bottom_carb_O.setState(BROKEN);
             top_carb_O.setState(BROKEN);
             carb_carb.setState(DOUBLE);
+            resonance_O_carbonyl_C.setState(FULL);
         }
         else if (newT < 0.7) {
             reactive_0_H.setState(BROKEN);
@@ -141,6 +166,7 @@ function makeSAPA(model, props) {
             bottom_carb_O.setState(PARTIAL);
             top_carb_O.setState(PARTIAL);
             carb_carb.setState(FULL_PARTIAL);
+            resonance_O_carbonyl_C.setState(FULL);
         }
         
         else if (newT < 0.8) {
@@ -149,6 +175,7 @@ function makeSAPA(model, props) {
             bottom_carb_O.setState(PARTIAL);
             top_carb_O.setState(PARTIAL);
             carb_carb.setState(FULL_PARTIAL);
+            resonance_O_carbonyl_C.setState(FULL_PARTIAL);
         }
         else {
             reactive_0_H.setState(BROKEN);
@@ -156,6 +183,7 @@ function makeSAPA(model, props) {
             bottom_carb_O.setState(FULL);
             top_carb_O.setState(FULL);
             carb_carb.setState(FULL);
+            resonance_O_carbonyl_C.setState(DOUBLE);
         }
         
         // Atoms/groups need to be updated before their bonds
