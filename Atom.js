@@ -114,10 +114,16 @@ class POrbital extends THREE.Group {
         this.lobe0.position.set(50 * (1 - prop), 0, 0);
         this.lobe0.scale.set((1 - prop) * divergenceFactor, (1 - prop), 1 - prop);        
     }
-	
+
+    // Returns a unit vector in the direction of the orbital
+    unitVec() {
+	return (new THREE.Vector3(1, 0, 0))
+	    .applyQuaternion(this.quaternion).normalize()
+    }
+
     // Takes a THREE.Vector3 VEC in orbital space, and returns
     // the same vector in world space.
-    orbitalToWorld(vec = new THREE.Vector3(SP3_SP3_BOND_LENGTH, 0, 0)) {
+    orbitalToWorld(vec = new THREE.Vector3(1, 0, 0)) {
 	//console.log(vec);
 	this.updateMatrixWorld();
 	let parent = this.parent;
@@ -125,6 +131,7 @@ class POrbital extends THREE.Group {
 	    parent.updateMatrixWorld();
 	    parent = parent.parent;
 	}
+	//console.log(this.localToWorld(vec.clone()));
 	//console.log(this.localToWorld(this.localToWorld(vec.clone()));
 	return this.localToWorld(vec);
     }

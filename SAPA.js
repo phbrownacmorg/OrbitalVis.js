@@ -31,28 +31,35 @@ function makeSAPA(model, props) {
     bottom_carb.rotation.z = -Math.PI/2;
     top_carb.addToOrbital(1, bottom_carb, SP3_SP3_BOND_LENGTH);
     model.needsUpdates.push(bottom_carb);
-	
+
+    const unitX = new THREE.Vector3(1, 0, 0);
+    const unitY = new THREE.Vector3(0, 1, 0);
+    
     const reactive_O = new SP3Atom('O');
-    reactive_O.position.set(model.xSign * 4 * SP3_SP3_BOND_LENGTH, 0, 0);
-    reactive_O.rotation.set(0, 0, RELAXED_ANGLE/2.0 + (Math.PI/2 + (model.xSign * Math.PI/2)));
+    reactive_O.position.set(model.xSign * 4.85 * SP3_SP3_BOND_LENGTH, 0, 0);
+    reactive_O.rotation.set(0, 0,
+			    RELAXED_ANGLE/2.0 + ((1+model.xSign) * Math.PI/2));
     reactive_O.start = reactive_O.position.clone(); 
-    reactive_O.end = new THREE.Vector3(model.xSign * 2 * SP3_SP3_BOND_LENGTH * (Math.sqrt(3.0) / 2), 0, 0); 
+    reactive_O.end = new THREE.Vector3(model.xSign * SP3_SP3_BOND_LENGTH
+				       * (Math.sqrt(3.0)), 0, 0); 
     model.add(reactive_O);
     model.needsUpdates.push(reactive_O);
-    
+
     const resonance_O = new SP3Atom('O', 'O', -30, -30, 0);
-    resonance_O.position.copy(reactive_O.orbitals[3].orbitalToWorld(new THREE.Vector3(2 * SP3_SP3_BOND_LENGTH, 0, 0)));
-	resonance_O.add(new THREE.AxesHelper(100));
-	resonance_O.rotation.set(0, 0, 0);
-//							 -Math.PI/2 
-//							 + model.xSign * Math.PI/2
-//							 + RELAXED_ANGLE);
+    resonance_O.position.copy(reactive_O.orbitals[3].orbitalToWorld(
+    	new THREE.Vector3(2 * SP3_SP3_BOND_LENGTH, 0, 0)));
+    //console.log(resonance_O.position);
+    resonance_O.rotateZ((model.xSign - 1) * (Math.PI/2) + RELAXED_ANGLE);
+    resonance_O.rotateOnWorldAxis(unitX, model.xSign * Math.PI/6);
+    resonance_O.rotateOnWorldAxis(unitY, model.xSign *
+				  (Math.PI - 1.5 * RELAXED_ANGLE));
+    resonance_O.initialRot = resonance_O.rotation.clone();
     model.add(resonance_O);
     model.needsUpdates.push(resonance_O);
-    
+
     const end_H = new SAtom('H');
     end_H.position.copy(reactive_O.orbitals[2].orbitalToWorld(new THREE.Vector3(S_SP3_BOND_LENGTH, 0, 0)));
-	end_H.start = end_H.position.clone();
+    end_H.start = end_H.position.clone();
     model.add(end_H); 
     model.needsUpdates.push(end_H);
     
@@ -87,19 +94,31 @@ function makeSAPA(model, props) {
 	bottom_carb.setInsideOutness(0.5 + insideOutnessOffset);
 	bottom_carb.setP0Divergence(diverg);
 	bottom_carb.setZeroOneAngle(
-	    THREE.Math.lerp(zeroOneAngle, Math.PI - zeroOneAngle, bottom_carb.insideOutness), 1);
+	    THREE.Math.lerp(zeroOneAngle, Math.PI - zeroOneAngle,
+			    bottom_carb.insideOutness), 1);
 	bottom_carb.rotation.set(0, 0, -Math.PI + bottom_carb.zeroOneAngle);
 	top_carb.setInsideOutness(0.5 - insideOutnessOffset);
 	top_carb.setP0Divergence(diverg);        
 	top_carb.setZeroOneAngle(
-	    THREE.Math.lerp(zeroOneAngle, Math.PI - zeroOneAngle, top_carb.insideOutness), 1);
+	    THREE.Math.lerp(zeroOneAngle, Math.PI - zeroOneAngle,
+			    top_carb.insideOutness), 1);
 	top_carb.rotation.set(0, 0, -Math.PI/2 + top_carb.zeroOneAngle);
         
         reactive_O.position.lerpVectors(reactive_O.start, reactive_O.end, oxyT);
         reactive_O.setZeroOneAngle(zeroOneAngle, 1);
-        reactive_O.rotation.set(0, 0, (reactive_O.zeroOneAngle/2) + (Math.PI/2) + (model.xSign * (Math.PI/2)));
-    
-        
+        reactive_O.rotation.set(0, 0, (reactive_O.zeroOneAngle/2) + (Math.PI/2)
+				+ (model.xSign * (Math.PI/2)));
+
+	// The resonance oxygen forms a double bond with the carbonyl C
+	resonance_O.setInsideOutness(oxyT/2);
+	resonance_O.setP0Divergence(oxyT);
+	resonance_O.rotation.set(0, 0, 0);
+	resonance_O.rotateZ((model.xSign - 1) * (Math.PI/2) +
+			    THREE.Math.lerp(RELAXED_ANGLE, Math.PI/2, oxyT));
+	resonance_O.rotateOnWorldAxis(unitX, model.xSign *
+				      THREE.Math.lerp(Math.PI/6, 0, oxyT));
+	resonance_O.rotateOnWorldAxis(unitY, model.xSign *
+				      (Math.PI - 1.5 * RELAXED_ANGLE));
         
         if (newT < 0.23) {
             reactive_0_H.setState(FULL);
