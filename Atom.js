@@ -44,8 +44,7 @@ class AtomGroup extends THREE.Group {
     }
     
     get2DPos(revQuat) {
-        return vec3To2D(this.getWorldPosition()
-						.applyQuaternion(revQuat))
+        return vec3To2D(this.getWorldPosition().applyQuaternion(revQuat))
 			.add(this.offsets);
     }
     
@@ -158,6 +157,9 @@ const MAX_DIVERGENCE = 1;
 const RELAXED_ANGLE = Math.acos(-1/3.0);
 const S_SP3_BOND_LENGTH = 100 * (1 - DEFAULT_LOBE_PROP) + S_RADIUS;
 const SP3_SP3_BOND_LENGTH = 100 * (1 - DEFAULT_LOBE_PROP);  // Why only 100?
+
+const S_SP3_VEC = new THREE.Vector3(S_SP3_BOND_LENGTH, 0, 0);
+const SP3_SP3_VEC = new THREE.Vector3(2 * SP3_SP3_BOND_LENGTH, 0, 0);
 
 class SP3Atom extends AtomGroup {
     constructor(name, text=name, tx=0, ty=0) {
