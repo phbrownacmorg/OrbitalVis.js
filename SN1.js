@@ -32,9 +32,9 @@ function makeSN1(model, props) {
     }
     
     water.start = new THREE.Vector3(model.xSign * MAX_WITHDRAWAL, 0, 0);
-    water.mid = new THREE.Vector3(model.xSign * (2 * SP3_SP3_BOND_LENGTH + 100),
-				  0, 0);
-    water.end = new THREE.Vector3(model.xSign * 2 * SP3_SP3_BOND_LENGTH, 0, 0);
+    water.mid = new THREE.Vector3(
+	model.xSign * (SP3_SP3_BOND_LENGTH + LOBE_LENGTH), 0, 0);
+    water.end = new THREE.Vector3(model.xSign * SP3_SP3_BOND_LENGTH, 0, 0);
     water.position.copy(water.start);
     model.add(water);
     model.needsUpdates.push(water);
@@ -59,13 +59,13 @@ function makeSN1(model, props) {
 
     const ethyl = new Ethyl();
     ethyl.rotation.set(Math.PI/2, 0, Math.PI);
-    ethyl.add(new THREE.AxesHelper(100));
-    carb.addToOrbital(1, ethyl, SP3_SP3_BOND_LENGTH);
+    //ethyl.add(new THREE.AxesHelper(100));
+    carb.addToOrbital(1, ethyl, SP3_SP3_BOND_LENGTH/2);
     model.needsUpdates.push(ethyl);
 
     const ch3 = new Methyl();
     ch3.rotation.set(Math.PI/6, 0, Math.PI);
-    carb.addToOrbital(2, ch3, SP3_SP3_BOND_LENGTH);
+    carb.addToOrbital(2, ch3, SP3_SP3_BOND_LENGTH/2);
     model.needsUpdates.push(ch3);
 
     // Make the Bonds
@@ -148,5 +148,5 @@ function makeSN1(model, props) {
         }	
     }
 
-    model.add(new THREE.AxesHelper(100));  
+    //model.add(new THREE.AxesHelper(100));  
 }

@@ -21,7 +21,7 @@ function makeSAPA(model, props) {
     const top_carb = new SP3Atom('C');
     top_carb.setInsideOutness(0.5);
     top_carb.setP0Divergence(1);
-    top_carb.position.set(0, SP3_SP3_BOND_LENGTH, 0);
+    top_carb.position.set(0, SP3_SP3_BOND_LENGTH/2, 0);
     model.add(top_carb);
     model.needsUpdates.push(top_carb);
     
@@ -29,25 +29,57 @@ function makeSAPA(model, props) {
     bottom_carb.setInsideOutness(0.5);
     bottom_carb.setP0Divergence(1);
     bottom_carb.rotation.z = -Math.PI/2;
-    top_carb.addToOrbital(1, bottom_carb, SP3_SP3_BOND_LENGTH);
+    top_carb.addToOrbital(1, bottom_carb, SP3_SP3_BOND_LENGTH/2);
     model.needsUpdates.push(bottom_carb);
 
-    const unitX = new THREE.Vector3(1, 0, 0);
-    const unitY = new THREE.Vector3(0, 1, 0);
+    const bottom_H = new SAtom('H');
+    bottom_carb.addToOrbital(2, bottom_H, S_RADIUS);
+    model.needsUpdates.push(bottom_H);
+
+    const top_H = new SAtom('H');
+    top_carb.addToOrbital(3, top_H, S_RADIUS);
+    model.needsUpdates.push(top_H);
     
+    const ch3a = new Methyl();
+    //ch3a.add(new THREE.AxesHelper(100));
+    //console.log(ch3a.quaternion);
+    //console.log(ch3a.rotation);
+    ch3a.rotation.set(THREE.Math.degToRad(-30), Math.PI, 0);
+		      //Math.PI + (RELAXED_ANGLE - Math.PI/2), Math.PI, 0);
+	// 3 * Math.PI/4,
+    //console.log(ch3a.quaternion);
+    //console.log(ch3a.rotation);
+    ch3a.quat0 = ch3a.quaternion.clone();
+    ch3a.quat1 = (new THREE.Quaternion()).setFromEuler(
+	new THREE.Euler(THREE.Math.degToRad(-5), Math.PI, 0));
+    top_carb.addToOrbital(2, ch3a, SP3_SP3_BOND_LENGTH/2);
+    model.needsUpdates.push(ch3a);
+
+    const ch3b = new Methyl();
+    //ch3b.add(new THREE.AxesHelper(100));
+    ch3b.rotation.set(THREE.Math.degToRad(150), Math.PI, 0);
+    ch3b.quat0 = ch3b.quaternion.clone();
+    ch3b.quat1 = (new THREE.Quaternion()).setFromEuler(
+	new THREE.Euler(THREE.Math.degToRad(175), Math.PI, 0));
+    bottom_carb.addToOrbital(3, ch3b, SP3_SP3_BOND_LENGTH/2);
+    model.needsUpdates.push(ch3b);
+        
     const reactive_O = new SP3Atom('O');
-    reactive_O.position.set(model.xSign * 4.85 * SP3_SP3_BOND_LENGTH, 0, 0);
-    reactive_O.rotation.set(0, 0,
-			    RELAXED_ANGLE/2.0 + ((1+model.xSign) * Math.PI/2));
+    reactive_O.add(new THREE.AxesHelper(100));
+    reactive_O.position.set(model.xSign * 4.85 * SP3_SP3_BOND_LENGTH/2, 0, 0);
     reactive_O.start = reactive_O.position.clone(); 
     reactive_O.end = new THREE.Vector3(model.xSign * SP3_SP3_BOND_LENGTH
-				       * (Math.sqrt(3.0)), 0, 0); 
+				       * (Math.sqrt(3.0)/2), 0, 0); 
+    reactive_O.rotation.set(0, 0,
+			    RELAXED_ANGLE/2.0 + ((1+model.xSign) * Math.PI/2));
     model.add(reactive_O);
     model.needsUpdates.push(reactive_O);
 
     const resonance_O = new SP3Atom('O', 'O', -30, -30, 0);
-    resonance_O.position.copy(reactive_O.orbitals[3].orbitalToWorld(
-    	new THREE.Vector3(2 * SP3_SP3_BOND_LENGTH, 0, 0)));
+    resonance_O.position.copy(reactive_O.orbitals[3].orbitalToModel(
+    	SP3_SP3_VEC.clone()));
+    console.log('Resonance: ', resonance_O.position,
+		reactive_O.orbitals[3].orbitalToModel(SP3_SP3_VEC.clone()));
     //console.log(resonance_O.position);
     resonance_O.rotateZ((model.xSign - 1) * (Math.PI/2) + RELAXED_ANGLE);
     resonance_O.rotateOnWorldAxis(unitX, model.xSign * Math.PI/6);
@@ -59,7 +91,7 @@ function makeSAPA(model, props) {
     
     const carbonyl_C = new SP3Atom('C', 'C', -40, 0, 0);
     carbonyl_C.position.copy(
-	resonance_O.orbitals[1].orbitalToWorld(SP3_SP3_VEC.clone()));
+	resonance_O.orbitals[1].orbitalToModel(SP3_SP3_VEC.clone()));
     carbonyl_C.setInsideOutness(0.5);
     carbonyl_C.setP0Divergence(1);
     carbonyl_C.rotation.set(0,
@@ -71,22 +103,31 @@ function makeSAPA(model, props) {
     
     const double_bond_O = new SP3Atom('O');
     double_bond_O.position.copy(
-	carbonyl_C.orbitals[1].orbitalToWorld(SP3_SP3_VEC.clone()));
+	carbonyl_C.orbitals[1].orbitalToModel(SP3_SP3_VEC.clone()));
     double_bond_O.setInsideOutness(0.5);
     double_bond_O.setP0Divergence(1);
     double_bond_O.rotation.set(0,
 			       model.xSign * (Math.PI/3 - 1.5 * RELAXED_ANGLE),
 			       model.xSign * Math.PI/2);
-    double_bond_O.add(new THREE.AxesHelper(100));
+    double_bond_O.quat0 = double_bond_O.quaternion.clone();
+    double_bond_O.quat1 = (new THREE.Quaternion()).setFromEuler(
+	new THREE.Euler(double_bond_O.rotation.x, double_bond_O.rotation.y,
+			model.xSign * Math.PI/2 + RELAXED_ANGLE - Math.PI/2));
+    //double_bond_O.add(new THREE.AxesHelper(100));
     model.add(double_bond_O);
     model.needsUpdates.push(double_bond_O);
     
     const end_H = new SAtom('H');
     end_H.position.copy(
-	reactive_O.orbitals[2].orbitalToWorld(S_SP3_VEC.clone()));
+	reactive_O.orbitals[2].orbitalToModel(S_SP3_VEC.clone()));
     end_H.start = end_H.position.clone();
+    // No end_H.end, because the attraction is to a moving target.
     model.add(end_H); 
     model.needsUpdates.push(end_H);
+
+    const r_H = new SAtom('H');
+    carbonyl_C.addToOrbital(2.5 + model.xSign * 0.5, r_H, S_RADIUS);
+    model.needsUpdates.push(r_H);
     
     //bonds 
     const carb_carb = new Bond(top_carb, bottom_carb, DOUBLE);
@@ -128,6 +169,11 @@ function makeSAPA(model, props) {
 	    THREE.Math.lerp(zeroOneAngle, Math.PI - zeroOneAngle,
 			    top_carb.insideOutness), 1);
 	top_carb.rotation.set(0, 0, -Math.PI/2 + top_carb.zeroOneAngle);
+
+	THREE.Quaternion.slerp(ch3a.quat0, ch3a.quat1, ch3a.quaternion,
+			       insideOutnessT);
+	THREE.Quaternion.slerp(ch3b.quat0, ch3b.quat1, ch3b.quaternion,
+			       insideOutnessT);
         
         reactive_O.position.lerpVectors(reactive_O.start, reactive_O.end, oxyT);
         reactive_O.setZeroOneAngle(zeroOneAngle, 1);
@@ -152,13 +198,15 @@ function makeSAPA(model, props) {
 	// The double-bond O loses its double bond
 	double_bond_O.setInsideOutness((1 - oxyT) / 2);
 	double_bond_O.setP0Divergence(1 - oxyT);
-	double_bond_O.rotation.z = model.xSign * Math.PI/2 + 
-	    THREE.Math.lerp(0, RELAXED_ANGLE - Math.PI/2, oxyT);
+	THREE.Quaternion.slerp(double_bond_O.quat0, double_bond_O.quat1,
+			       double_bond_O.quaternion, oxyT);
+	//double_bond_O.rotation.z = model.xSign * Math.PI/2 + 
+	//    THREE.Math.lerp(0, RELAXED_ANGLE - Math.PI/2, oxyT);
 
 	// The end hydrogen moves to its new place
 	end_H.position.lerpVectors(
 	    end_H.start,
-	    double_bond_O.orbitals[3].orbitalToWorld(S_SP3_VEC.clone()),
+	    double_bond_O.orbitals[3].orbitalToModel(S_SP3_VEC.clone()),
 	    oxyT);		   
 	
 	//update bonds

@@ -15,8 +15,8 @@
 
 function makeSN2(model, props) {    
     const oh = new Hydroxide('HO');
-    oh.start = new THREE.Vector3(-2 * SP3_SP3_BOND_LENGTH - 100, 0, 0);
-    oh.end = new THREE.Vector3(-2 * SP3_SP3_BOND_LENGTH, 0, 0);
+    oh.start = new THREE.Vector3(-SP3_SP3_BOND_LENGTH - 100, 0, 0);
+    oh.end = new THREE.Vector3(-SP3_SP3_BOND_LENGTH, 0, 0);
     oh.position.copy(oh.start);
     model.add(oh);
     model.needsUpdates.push(oh);
@@ -38,8 +38,8 @@ function makeSN2(model, props) {
     }
     
     const chlor = new SP3Atom("Cl");
-    chlor.start = new THREE.Vector3(2 * SP3_SP3_BOND_LENGTH, 0, 0);
-    chlor.end = new THREE.Vector3(2 * SP3_SP3_BOND_LENGTH + 100, 0, 0);
+    chlor.start = new THREE.Vector3(SP3_SP3_BOND_LENGTH, 0, 0);
+    chlor.end = new THREE.Vector3(SP3_SP3_BOND_LENGTH + 100, 0, 0);
     chlor.position.copy(chlor.start);
     chlor.rotateY(Math.PI);
     model.add(chlor);

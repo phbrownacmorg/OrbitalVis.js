@@ -39,20 +39,20 @@ function makeAcyl(model, props) {
     oxy.setP0Divergence(1);
     //oxy.add(new THREE.AxesHelper(100));
     oxy.rotation.z = -Math.PI/2;
-    carb.addToOrbital(1, oxy, SP3_SP3_BOND_LENGTH);
+    carb.addToOrbital(1, oxy, SP3_SP3_BOND_LENGTH/2);
     model.needsUpdates.push(oxy);
     
     const ch3 = new Methyl();
     //ch3.add(new THREE.AxesHelper(30));
     ch3.setInsideOutness(1.0);
     ch3.rotateX(1.5 * RELAXED_ANGLE + 0.25 * Math.PI);  // Roll an H straight down
-    carb.addToOrbital(3, ch3, SP3_SP3_BOND_LENGTH);
+    carb.addToOrbital(3, ch3, SP3_SP3_BOND_LENGTH/2);
     model.needsUpdates.push(ch3);
 
     const ethyl = new Ethyl();
     ethyl.setInsideOutness(1.0);
     ethyl.rotateX(1.5 * RELAXED_ANGLE + 0.25 * Math.PI);
-    carb.addToOrbital(2, ethyl, SP3_SP3_BOND_LENGTH);
+    carb.addToOrbital(2, ethyl, SP3_SP3_BOND_LENGTH/2);
     model.needsUpdates.push(ethyl);
         
     // Add the bonds

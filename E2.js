@@ -22,7 +22,7 @@ function makeE2(model, props) {
     const carb1 = new SP3Atom('C');
     // 0 orbital interacts with the leaving H,
     // and eventually forms the pi-bond.
-    carb1.position.set(-SP3_SP3_BOND_LENGTH, 0, 0);
+    carb1.position.set(-SP3_SP3_BOND_LENGTH/2, 0, 0);
     carb1.rotation.set(0, 0, RELAXED_ANGLE);
     model.add(carb1);
     model.needsUpdates.push(carb1);
@@ -30,7 +30,7 @@ function makeE2(model, props) {
     const carb2 = new SP3Atom('C');
     // 0 orbital interacts with the leaving Cl,
     // and eventually forms the pi-bond.
-    carb2.position.set(SP3_SP3_BOND_LENGTH, 0, 0);
+    carb2.position.set(SP3_SP3_BOND_LENGTH/2, 0, 0);
     carb2.rotation.set(0, 0, Math.PI + RELAXED_ANGLE);
     model.add(carb2);
     model.needsUpdates.push(carb2);
@@ -40,18 +40,19 @@ function makeE2(model, props) {
     model.needsUpdates.push(hydro3);
     
     const meth2 = new Methyl('CH3', 20, 30);
-    carb2.addToOrbital(2, meth2, SP3_SP3_BOND_LENGTH);
+    carb2.addToOrbital(2, meth2, SP3_SP3_BOND_LENGTH/2);
     meth2.rotation.set(0, Math.PI, 0);
     model.needsUpdates.push(meth2);
     
     const hydro2 = new SAtom('H');
     // Figure out the position of hydro2 relative to the center of carb1
     hydro2.position.set((-1/3.0), Math.sin(RELAXED_ANGLE), 0);
-    hydro2.position.multiplyScalar(SP3_SP3_BOND_LENGTH + S_RADIUS);
+    hydro2.position.multiplyScalar(SP3_SP3_BOND_LENGTH/2 + S_RADIUS);
     // Add in the position of carb1 to find the absolute position    
     hydro2.position.add(carb1.position);
     hydro2.start = hydro2.position.clone();
-    hydro2.bind = hydro2.start.clone().setX(hydro2.start.x - 0.5 * S_SP3_BOND_LENGTH);
+    hydro2.bind = hydro2.start.clone().setX(hydro2.start.x
+					    - 0.5 * S_SP3_BOND_LENGTH);
     // Offset from OH group after bond is formed
     hydro2.offset = new THREE.Vector3(S_SP3_BOND_LENGTH, 0, 0);
     model.add(hydro2);
@@ -61,18 +62,20 @@ function makeE2(model, props) {
     oh.position.set(-2 * MAX_WITHDRAWAL, hydro2.position.y, 0);
     oh.rotation.set(Math.PI, 0, 0);
     oh.start = oh.position.clone();
-    oh.close1 = oh.start.clone().setX(hydro2.start.x - 1.5 * S_SP3_BOND_LENGTH - S_RADIUS);
+    oh.close1 = oh.start.clone().setX(hydro2.start.x - 1.5 * S_SP3_BOND_LENGTH
+				      - S_RADIUS);
     oh.close2 = oh.close1.clone().setX(oh.close1.x + S_RADIUS);
     model.add(oh);
     model.needsUpdates.push(oh);
     
     const chlor = new SP3Atom('Cl');
-    carb2.addToOrbital(0, chlor, SP3_SP3_BOND_LENGTH);
+    carb2.addToOrbital(0, chlor, SP3_SP3_BOND_LENGTH/2);
     //chlor.add(new THREE.AxesHelper(100));
     chlor.rotation.set(0, Math.PI, 0);
     chlor.start = chlor.position.clone();
     chlor.mid = chlor.start.clone().add(new THREE.Vector3(40, 0, 0));
-    chlor.end = chlor.start.clone().add(new THREE.Vector3(MAX_WITHDRAWAL, 0, 0));
+    chlor.end = chlor.start.clone().add(new THREE.Vector3(MAX_WITHDRAWAL,
+							  0, 0));
     //console.log(JSON.stringify(chlor.start));
     //console.log(JSON.stringify(chlor.mid));
     model.needsUpdates.push(chlor);
@@ -82,7 +85,7 @@ function makeE2(model, props) {
     model.needsUpdates.push(hydro1);
     
     const meth1 = new Methyl('CH3', -40, -30);
-    carb1.addToOrbital(3, meth1, SP3_SP3_BOND_LENGTH);
+    carb1.addToOrbital(3, meth1, SP3_SP3_BOND_LENGTH/2);
     meth1.rotation.set(0, Math.PI, 0)
     model.needsUpdates.push(meth1);
     
@@ -103,7 +106,6 @@ function makeE2(model, props) {
     model.needsUpdates.push(hydro2_carb1);
     const carb1_meth1 = new Bond(carb1, meth1, FRONT_SLANT);
     model.needsUpdates.push(carb1_meth1);
-    
     
     model.setT = function(newT, revQuat) {
         model.t = newT;
@@ -131,13 +133,16 @@ function makeE2(model, props) {
         }
         else if (newT < 0.5) {
             oh.position.lerpVectors(oh.close1, oh.close2, (newT - 0.4)/0.1);
-            hydro2.position.lerpVectors(hydro2.start, hydro2.bind, (newT - 0.4)/0.1);
-            chlor.position.lerpVectors(chlor.start, chlor.mid, (newT - 0.4)/0.2);
+            hydro2.position.lerpVectors(hydro2.start, hydro2.bind,
+					(newT - 0.4)/0.1);
+            chlor.position.lerpVectors(chlor.start, chlor.mid,
+				       (newT - 0.4)/0.2);
         }
         else if (newT < 0.6) {
             oh.position.lerpVectors(oh.close2, oh.close1, (newT - 0.5)/0.1);
             hydro2.position.addVectors(oh.position, hydro2.offset);
-            chlor.position.lerpVectors(chlor.start, chlor.mid, (newT - 0.4)/0.2);
+            chlor.position.lerpVectors(chlor.start, chlor.mid,
+				       (newT - 0.4)/0.2);
         }
         else {
             oh.position.lerpVectors(oh.close1, oh.start, (newT-0.6)/0.4);
@@ -172,5 +177,5 @@ function makeE2(model, props) {
 
     };
     
-    model.add(new THREE.AxesHelper(100));
+    //model.add(new THREE.AxesHelper(100));
 }

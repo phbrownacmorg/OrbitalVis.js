@@ -6,11 +6,11 @@ const COLORS = { C: 'black', Cl: 'rgb(0, 221, 0)', H: 'white', O: 'rgb(221, 0, 0
 
 function makeAtomMaterial(name) {
     return new THREE.MeshBasicMaterial( {
-            color: COLORS[name],
-            depthTest: false,
-            opacity: 0.3,
-            transparent: true,
-            side: THREE.DoubleSide
+        color: COLORS[name],
+        depthTest: false,
+        opacity: 0.3,
+        transparent: true,
+        side: THREE.DoubleSide
     } );
 }
 
@@ -24,18 +24,26 @@ function vec3To2D(v) {
     return result;
 }
 
+// Unit vectors
+const unitX = new THREE.Vector3(1, 0, 0);
+const unitY = new THREE.Vector3(0, 1, 0);
+const unitZ = new THREE.Vector3(0, 0, 1);
+
+
 class AtomGroup extends THREE.Group {
     constructor(name, tx=0, ty=0) {
         super();
         this.name = name;
-		this.offsets = new THREE.Vector2(tx, ty);
+	this.offsets = new THREE.Vector2(tx, ty);
         if (name && name !== '') {
-            this.textElt = document.createElementNS("http://www.w3.org/2000/svg", 'text');
+            this.textElt = document.createElementNS(
+		"http://www.w3.org/2000/svg", 'text');
             this.textElt.innerHTML = name;
             this.textElt.setAttribute('class', name);
             this.textElt.setAttribute('x', '0');
             this.textElt.setAttribute('y', '0');
-            //console.log('Creating 2D for ' + name + ": " + this.textElt.toString());
+            //console.log('Creating 2D for ' + name + ": "
+	    //            + this.textElt.toString());
         }
     }
     
@@ -45,7 +53,7 @@ class AtomGroup extends THREE.Group {
     
     get2DPos(revQuat) {
         return vec3To2D(this.getWorldPosition().applyQuaternion(revQuat))
-			.add(this.offsets);
+	    .add(this.offsets);
     }
     
     update2D(revQuat) {
@@ -58,28 +66,32 @@ class AtomGroup extends THREE.Group {
 
 const S_RADIUS = 25;
 class SAtom extends AtomGroup {
-	constructor(name, text=name, tx=0, ty=0) {
-		super(text, tx, ty);
-		let geom = new THREE.SphereGeometry(S_RADIUS, 64, 64);
-		this.add(new THREE.Mesh(geom, makeAtomMaterial(name)));
-	}
+    constructor(name, text=name, tx=0, ty=0) {
+	super(text, tx, ty);
+	let geom = new THREE.SphereGeometry(S_RADIUS, 64, 64);
+	this.add(new THREE.Mesh(geom, makeAtomMaterial(name)));
+    }
 }
 
 // Half the minimum central angle of a POrbital's cone
 const MIN_CENTRAL_ANGLE = THREE.Math.degToRad(15); 
 // Half the maximum central angle of a POrbital's cone
 const MAX_CENTRAL_ANGLE = THREE.Math.degToRad(60);
+// length of a lobe if proportion = 1
+const LOBE_LENGTH = 4 * S_RADIUS;
+const HALF_LOBE = LOBE_LENGTH / 2;
 
 class POrbital extends THREE.Group {
     constructor(lobeProportion, divergence, material) {
         super();
+	this.name = 'orbital';
         this.proportion = lobeProportion;
         
         this.lobe0 = POrbital.makeHalfPOrbital(1.0 - lobeProportion, material);
         this.add(this.lobe0);
         
         this.lobe1 = POrbital.makeHalfPOrbital(lobeProportion, material);
-        this.lobe1.position.set(-50 * lobeProportion, 0, 0);
+        this.lobe1.position.set(-HALF_LOBE * lobeProportion, 0, 0);
         this.lobe1.rotateZ(Math.PI);
         this.add(this.lobe1);
         
@@ -87,13 +99,14 @@ class POrbital extends THREE.Group {
     }
     
     setDivergence(newD) {
-        this.centralAngle = THREE.Math.lerp(MIN_CENTRAL_ANGLE, MAX_CENTRAL_ANGLE, newD);
+        this.centralAngle = THREE.Math.lerp(MIN_CENTRAL_ANGLE,
+					    MAX_CENTRAL_ANGLE, newD);
         //console.log(THREE.Math.radToDeg(this.centralAngle));
         this.updatePositionsScales();
     }
     
     addOnEnd(obj, extraDist) {
-        obj.position.set(extraDist + 100 * (1.0 - this.proportion), 0, 0);
+        obj.position.set(extraDist + LOBE_LENGTH*(1.0 - this.proportion), 0, 0);
         this.add(obj);
     }
     
@@ -103,37 +116,57 @@ class POrbital extends THREE.Group {
     }
     
     updatePositionsScales() {
-        let divergenceFactor = Math.tan(this.centralAngle) / Math.tan(MIN_CENTRAL_ANGLE);
+        let divergenceFactor = Math.tan(this.centralAngle)
+	    / Math.tan(MIN_CENTRAL_ANGLE);
         let prop = this.proportion;
         //if (this.centralAngle !== MIN_CENTRAL_ANGLE) {
-            //console.log(divergenceFactor, prop);
+        //console.log(divergenceFactor, prop);
         //}
-        this.lobe1.position.set(-50 * prop, 0, 0);
+        this.lobe1.position.set(-HALF_LOBE * prop, 0, 0);
         this.lobe1.scale.set(prop * divergenceFactor, prop, prop);
-        this.lobe0.position.set(50 * (1 - prop), 0, 0);
-        this.lobe0.scale.set((1 - prop) * divergenceFactor, (1 - prop), 1 - prop);        
+        this.lobe0.position.set(HALF_LOBE * (1 - prop), 0, 0);
+        this.lobe0.scale.set((1 - prop) * divergenceFactor, 1 - prop, 1 - prop);
     }
 
     // Returns a unit vector in the direction of the orbital
     unitVec() {
-	return (new THREE.Vector3(1, 0, 0))
+	return unitX.clone()
 	    .applyQuaternion(this.quaternion).normalize()
     }
 
-    // Takes a THREE.Vector3 VEC in orbital space, and returns
-    // the same vector in world space.
-    orbitalToWorld(vec = new THREE.Vector3(1, 0, 0)) {
+    // Takes a THREE.Vector3 VEC in orbital space, and returns the
+    // same vector in the space of the model.
+    orbitalToModel(vec = unitX.clone()) {
 	//console.log(vec);
-	this.updateMatrixWorld();
-	let parent = this.parent;
-	while (parent) {
-	    parent.updateMatrixWorld();
-	    parent = parent.parent;
+	let obj = this;
+	while (obj.name !== 'model') {
+	    // Transform vec into the parent's frame of reference
+	    vec.applyQuaternion(obj.quaternion);
+	    vec.multiply(obj.scale);
+	    vec.add(obj.position);
+	    // Not obvious to me why applying obj.matrix won't do, but
+	    // it doesn't
+
+	    //console.log(obj.name, vec);  
+	    obj = obj.parent;
 	}
-	//console.log(this.localToWorld(vec.clone()));
-	//console.log(this.localToWorld(this.localToWorld(vec.clone()));
-	return this.localToWorld(vec);
+	return vec;
     }
+
+    // // Takes a THREE.Vector3 VEC in orbital space, and returns
+    // // the same vector in world space.
+    // orbitalToWorld(vec = unitX.clone()) {
+    // 	//console.log(vec);
+    // 	this.updateMatrixWorld();
+    // 	let parent = this.parent;
+    // 	while (parent) {
+    // 	    parent.updateMatrixWorld();
+    // 	    parent = parent.parent;
+    // 	}
+    // 	//console.log(this.localToWorld(vec.clone()));
+    // 	//console.log(this.localToWorld(this.localToWorld(vec.clone()));
+    // 	return this.localToWorld(vec);
+    // }
 
     static makeHalfPOrbital(scalingFactor, material) {
         const R = 100 * Math.tan(MIN_CENTRAL_ANGLE);
@@ -155,11 +188,11 @@ const DEFAULT_LOBE_PROP = 1/3;
 const MIN_DIVERGENCE = 0;
 const MAX_DIVERGENCE = 1;
 const RELAXED_ANGLE = Math.acos(-1/3.0);
-const S_SP3_BOND_LENGTH = 100 * (1 - DEFAULT_LOBE_PROP) + S_RADIUS;
-const SP3_SP3_BOND_LENGTH = 100 * (1 - DEFAULT_LOBE_PROP);  // Why only 100?
+const S_SP3_BOND_LENGTH = LOBE_LENGTH * (1 - DEFAULT_LOBE_PROP) + S_RADIUS;
+const SP3_SP3_BOND_LENGTH = 2 * LOBE_LENGTH * (1 - DEFAULT_LOBE_PROP);
 
 const S_SP3_VEC = new THREE.Vector3(S_SP3_BOND_LENGTH, 0, 0);
-const SP3_SP3_VEC = new THREE.Vector3(2 * SP3_SP3_BOND_LENGTH, 0, 0);
+const SP3_SP3_VEC = new THREE.Vector3(SP3_SP3_BOND_LENGTH, 0, 0);
 
 class SP3Atom extends AtomGroup {
     constructor(name, text=name, tx=0, ty=0) {
@@ -170,7 +203,8 @@ class SP3Atom extends AtomGroup {
         
         this.orbitals = [];
         for (let i = 0; i < 4; i++) {
-            this.orbitals.push(new POrbital(DEFAULT_LOBE_PROP, MIN_DIVERGENCE, material));
+            this.orbitals.push(new POrbital(DEFAULT_LOBE_PROP, MIN_DIVERGENCE,
+					    material));
         }
 
         this.setZeroOneAngle(RELAXED_ANGLE);
@@ -192,11 +226,11 @@ class SP3Atom extends AtomGroup {
         this.insideOutness = newProp;
         this.orbitals[0].setLobeProportion(
 	    THREE.Math.lerp(DEFAULT_LOBE_PROP, 1 - DEFAULT_LOBE_PROP, newProp));
-	    // (1 - newProp) * DEFAULT_LOBE_PROP
-            //              + newProp * (1 - DEFAULT_LOBE_PROP));
+	// (1 - newProp) * DEFAULT_LOBE_PROP
+        //              + newProp * (1 - DEFAULT_LOBE_PROP));
         this.setZeroOneAngle(THREE.Math.lerp(RELAXED_ANGLE,
 					     Math.PI - RELAXED_ANGLE, newProp));
-                             //+ newProp * (Math.PI - RELAXED_ANGLE));
+        //+ newProp * (Math.PI - RELAXED_ANGLE));
     }
 
     setZeroOneAngle(angle, lastOrbital = 3) {
@@ -204,7 +238,7 @@ class SP3Atom extends AtomGroup {
         for (let i = 1; i < 4; i++) {
 	    if (i <= lastOrbital) {
 		let axis = new THREE.Vector3(0, 0, -1);
-		axis.applyAxisAngle(new THREE.Vector3(1, 0, 0), 
+		axis.applyAxisAngle(unitX, 
                                     (i-1) * 2 * Math.PI/3);
 		this.orbitals[i].setRotationFromAxisAngle(axis.normalize(),
 							  this.zeroOneAngle);
@@ -216,7 +250,7 @@ class SP3Atom extends AtomGroup {
 		// the 0 and 1 orbitals.  But my geometry is apparently not good
 		// enough to calculate that plane and then rotate in it.
 		let axis = new THREE.Vector3(0, 0, -1);
-		axis.applyAxisAngle(new THREE.Vector3(1, 0, 0), 
+		axis.applyAxisAngle(unitX, 
                                     (i-1) * 2 * Math.PI/3);
 		this.orbitals[i].setRotationFromAxisAngle(
 		    axis.normalize(),
@@ -228,40 +262,40 @@ class SP3Atom extends AtomGroup {
 }
 
 class Hydroxide extends SP3Atom {
-	constructor(text = 'OH', tx=0, ty=0) {
-		super('O', text, tx, ty);
-		this.addToOrbital(1, new SAtom('H', ''), S_RADIUS);
-	}
+    constructor(text = 'OH', tx=0, ty=0) {
+	super('O', text, tx, ty);
+	this.addToOrbital(1, new SAtom('H', ''), S_RADIUS);
+    }
 }
 
 class Methyl extends SP3Atom {
-	constructor(text='CH3', tx=0, ty=0) {
-		super('C', text, tx, ty);
-		for (let i = 1; i < 4; i++) {
-     	   this.addToOrbital(i, new SAtom('H', ''), S_RADIUS);
+    constructor(text='CH3', tx=0, ty=0) {
+	super('C', text, tx, ty);
+	for (let i = 1; i < 4; i++) {
+     	    this.addToOrbital(i, new SAtom('H', ''), S_RADIUS);
     	}
-	}
+    }
 }
 
 class Ethyl extends SP3Atom {
-	constructor(text = 'CH2CH3', tx=0, ty=0) {
-		super('C', text, tx, ty);
-		const methyl = new Methyl('');
-		methyl.setInsideOutness(1.0);
-		methyl.rotateX(Math.PI);
-		this.addToOrbital(1, methyl, SP3_SP3_BOND_LENGTH);
+    constructor(text = 'CH2CH3', tx=0, ty=0) {
+	super('C', text, tx, ty);
+	const methyl = new Methyl('');
+	methyl.setInsideOutness(1.0);
+	methyl.rotateX(Math.PI);
+	this.addToOrbital(1, methyl, SP3_SP3_BOND_LENGTH/2);
     	for (let i = 2; i < 4; i++) {
-        	this.addToOrbital(i, new SAtom('H', ''), S_RADIUS);	   	 		 }
-	}
+            this.addToOrbital(i, new SAtom('H', ''), S_RADIUS);	   	 		}
+    }
 }
 
 class Water extends SP3Atom {
-	constructor(text = 'H2O', tx=0, ty=0) {
+    constructor(text = 'H2O', tx=0, ty=0) {
     	super('O', text, tx, ty);
     	for (let i = 2; i < 4; i++) {
-			this.addToOrbital(i, new SAtom('H', ''), S_RADIUS);
+	    this.addToOrbital(i, new SAtom('H', ''), S_RADIUS);
     	}
-	}
+    }
 }
 
 

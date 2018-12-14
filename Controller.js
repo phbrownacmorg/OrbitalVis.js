@@ -38,23 +38,23 @@ function reshapeCamera(camera, props) {
 
 $(document).ready(function() {
     console.log('Doc ready');
-    let properties = $(document).data('properties');
+    const properties = $(document).data('properties');
     console.log(properties);
-    let scene = new THREE.Scene();
+    const scene = new THREE.Scene();
 
-    let renderer = new THREE.WebGLRenderer();
+    const renderer = new THREE.WebGLRenderer();
     renderer.setClearColor(new THREE.Color( 0.4, 0.4, 0.4 ), 1.0);
     //renderer.sortObjects = false;
     $('#display-3D').append(renderer.domElement);
     //renderer.domElement.style.setProperty('border', 'thin dashed blue');
 
-    let camera = new THREE.PerspectiveCamera();
+    const camera = new THREE.PerspectiveCamera();
     camera.name = 'camera';
 
     let reaction = 'defaults';
     let rockingAngle;
 
-    let changeReactionFn = function() {
+    const changeReactionFn = function() {
         //console.log(reaction);
         //console.log(properties[reaction]);
         setGeometry(properties[reaction], renderer);
@@ -95,7 +95,7 @@ $(document).ready(function() {
     });
 
     let rt = 0;
-    let dt = 0.04;
+    const dt = 0.04;
     function animate() {
         requestAnimationFrame( animate );
         if (rocking === true) {

@@ -135,72 +135,75 @@ function setRenderOrder(obj) {
 }
 
 class Model extends THREE.Group {
-	constructor(props) {
-		super();
-		this.needsUpdates = [];
-		this.setSide(props.reaction);
-		
-		switch(props.reaction) {
-			case 'Acyl-L':
-			case 'Acyl-R':
-				makeAcyl(this, props);
-				break;
-			case 'E1':
-				makeE1(this, props);
-				break;
-			case 'E2':
-				makeE2(this, props);
-				break;
-			case 'EA2A-L':
-			case 'EA2A-R':
-				makeEA2A(this, props);
-				break;
-            case 'SAPA-L':
-			case 'SAPA-R':
-				makeSAPA(this, props);
-				break;
-			case 'SN1-L':
-			case 'SN1-R':
-				makeSN1(this, props);
-				break;
-			case 'SN2':
-				makeSN2(this, props);
-				break;
-			default:
-				this.add(new THREE.AxesHelper(100));
-				this.setT = function(newT, revQuat) {};
-				break;
-		}
-		
-		setRenderOrder(this);
-        this.updateDOM();
+    constructor(props) {
+	super();
+	this.name = 'model';
+	this.needsUpdates = [];
+	this.setSide(props.reaction);
+	
+	switch(props.reaction) {
+	case 'Acyl-L':
+	case 'Acyl-R':
+	    makeAcyl(this, props);
+	    break;
+	case 'E1':
+	    makeE1(this, props);
+	    break;
+	case 'E2':
+	    makeE2(this, props);
+	    break;
+	case 'EA2A-L':
+	case 'EA2A-R':
+	    makeEA2A(this, props);
+	    break;
+        case 'SAPA-L':
+	case 'SAPA-R':
+	    makeSAPA(this, props);
+	    break;
+	case 'SN1-L':
+	case 'SN1-R':
+	    makeSN1(this, props);
+	    break;
+	case 'SN2':
+	    makeSN2(this, props);
+	    break;
+	default:
+	    this.add(new THREE.AxesHelper(100));
+	    this.setT = function(newT, revQuat) {};
+	    break;
 	}
+		
+	setRenderOrder(this);
+        this.updateDOM();
+    }
 
     // Set this.xSign
     setSide(reaction) {
-        this.xSign = 0; // Ignored for reaction mechanisms that don't care about the side
-		if (reaction.endsWith('-L')) {
-		    this.xSign = -1;
-		}
-		else if (reaction.endsWith('-R')) {
-		    this.xSign = 1;
-		}
+        this.xSign = 0; // Ignored for reaction mechanisms that don't
+			// care about the side
+	if (reaction.endsWith('-L')) {
+	    this.xSign = -1;
+	}
+	else if (reaction.endsWith('-R')) {
+	    this.xSign = 1;
+	}
     }
 
-    // Add the 2D elements to the DOM.  Clear out any cruft in the place where they go first.
+    // Add the 2D elements to the DOM.  Clear out any cruft in the
+    // place where they go first.
     updateDOM() {
         $('#svg-xfm').empty();
         for (let item of this.needsUpdates) {
     	    // Bonds should really be added to the DOM first, 
-			//     so they lie behind the atoms/groups
-        	const elt = item.get2DElt();
-        	if (elt.tagName == 'text') {
+	    //     so they lie behind the atoms/groups
+            const elt = item.get2DElt();
+            if (elt.tagName == 'text') {
             	$('#svg-xfm').append(elt);
-        	}
-        	else {
+            }
+            else {
             	$('#svg-xfm').prepend(elt);
-        	}
-        	item.update2D(new THREE.Quaternion());
+            }
+            item.update2D(new THREE.Quaternion());
     	}
     }
 }

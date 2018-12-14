@@ -30,7 +30,7 @@ function makeEA2A(model, props) {
     bottom_carb.setP0Divergence(1);
     //bottom_carb.add(new THREE.AxesHelper(100));
     bottom_carb.rotation.z = -Math.PI/2;
-    top_carb.addToOrbital(1, bottom_carb, SP3_SP3_BOND_LENGTH);
+    top_carb.addToOrbital(1, bottom_carb, SP3_SP3_BOND_LENGTH/2);
     model.needsUpdates.push(bottom_carb);
 
     const bottom_H = new SAtom('H');
@@ -39,12 +39,12 @@ function makeEA2A(model, props) {
 
     const ch3a = new Methyl();
     ch3a.rotation.set(2*Math.PI/3, 0, Math.PI);
-    top_carb.addToOrbital(2, ch3a, SP3_SP3_BOND_LENGTH);
+    top_carb.addToOrbital(2, ch3a, SP3_SP3_BOND_LENGTH/2);
     model.needsUpdates.push(ch3a);
 
     const ch3b = new Methyl();
     ch3b.rotation.set(-2 * Math.PI/3, 0, Math.PI);
-    bottom_carb.addToOrbital(3, ch3b, SP3_SP3_BOND_LENGTH);
+    bottom_carb.addToOrbital(3, ch3b, SP3_SP3_BOND_LENGTH/2);
     model.needsUpdates.push(ch3b);
    
     const new_H = new SAtom('H');

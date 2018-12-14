@@ -17,16 +17,16 @@
 /* global THREE */
 
 function makeE1(model, props) {
-    const MAX_WITHDRAWAL = 5 * SP3_SP3_BOND_LENGTH;
+    const MAX_WITHDRAWAL = 7 * SP3_SP3_BOND_LENGTH;
 
     const carb1 = new SP3Atom('C');
-    carb1.position.set(-SP3_SP3_BOND_LENGTH, 0, 0);
+    carb1.position.set(-SP3_SP3_BOND_LENGTH/2, 0, 0);
     carb1.rotation.set(0, 0, carb1.zeroOneAngle);
     model.add(carb1);
     model.needsUpdates.push(carb1);
 
     const carb2 = new SP3Atom('C');
-    carb2.position.set(SP3_SP3_BOND_LENGTH, 0, 0);
+    carb2.position.set(SP3_SP3_BOND_LENGTH/2, 0, 0);
     carb2.rotation.set(0, 0, carb2.zeroOneAngle + Math.PI);
     model.add(carb2);
     model.needsUpdates.push(carb2);
@@ -37,7 +37,7 @@ function makeE1(model, props) {
     hydro2.position.copy(carb1.position);
     // Move it out orbital 0 the proper distance
     hydro2.position.add(
-	new THREE.Vector3(100 * (1-DEFAULT_LOBE_PROP) + S_RADIUS, 0, 0)
+	new THREE.Vector3(LOBE_LENGTH * (1-DEFAULT_LOBE_PROP) + S_RADIUS, 0, 0)
 	    .applyQuaternion(carb1.quaternion));
     model.add(hydro2);
     model.needsUpdates.push(hydro2);
@@ -53,12 +53,12 @@ function makeE1(model, props) {
 
     const meth3 = new Methyl('CH3', 30, -50);
     meth3.rotation.set(-7 * Math.PI/12, 0, Math.PI);
-    carb2.addToOrbital(3, meth3, SP3_SP3_BOND_LENGTH);
+    carb2.addToOrbital(3, meth3, SP3_SP3_BOND_LENGTH/2);
     model.needsUpdates.push(meth3);
 
     const chlor = new SP3Atom('Cl');
     chlor.rotation.set(0, 0, Math.PI);
-    carb2.addToOrbital(0, chlor, SP3_SP3_BOND_LENGTH);
+    carb2.addToOrbital(0, chlor, SP3_SP3_BOND_LENGTH/2);
     chlor.start = chlor.position.clone();
     chlor.mid = chlor.start.clone().add(new THREE.Vector3(35, 0, 0));
     chlor.end = chlor.mid.clone().add(new THREE.Vector3(MAX_WITHDRAWAL, 0, 0));
@@ -66,12 +66,12 @@ function makeE1(model, props) {
 
     const meth1 = new Methyl('CH3', -30, 50);
     meth1.rotation.set(0, 0, Math.PI);
-    carb1.addToOrbital(2, meth1, SP3_SP3_BOND_LENGTH);
+    carb1.addToOrbital(2, meth1, SP3_SP3_BOND_LENGTH/2);
     model.needsUpdates.push(meth1);
     
     const meth2 = new Methyl();
     meth2.rotation.set(0, 0, Math.PI);
-    carb2.addToOrbital(2, meth2, SP3_SP3_BOND_LENGTH);
+    carb2.addToOrbital(2, meth2, SP3_SP3_BOND_LENGTH/2);
     model.needsUpdates.push(meth2);
     
     const oh = new Hydroxide('HO');
@@ -192,5 +192,5 @@ function makeE1(model, props) {
         }	
     }
     
-    model.add(new THREE.AxesHelper(100));
+    //model.add(new THREE.AxesHelper(100));
 }
