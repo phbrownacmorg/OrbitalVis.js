@@ -65,7 +65,7 @@ function makeSAPA(model, props) {
     model.needsUpdates.push(ch3b);
         
     const reactive_O = new SP3Atom('O');
-    reactive_O.add(new THREE.AxesHelper(100));
+    //reactive_O.add(new THREE.AxesHelper(100));
     reactive_O.position.set(model.xSign * 4.85 * SP3_SP3_BOND_LENGTH/2, 0, 0);
     reactive_O.start = reactive_O.position.clone(); 
     reactive_O.end = new THREE.Vector3(model.xSign * SP3_SP3_BOND_LENGTH
@@ -75,7 +75,7 @@ function makeSAPA(model, props) {
     model.add(reactive_O);
     model.needsUpdates.push(reactive_O);
 
-    const resonance_O = new SP3Atom('O', 'O', -30, -30, 0);
+    const resonance_O = new SP3Atom('O', 'O', -30, -60);
     resonance_O.position.copy(reactive_O.orbitals[3].orbitalToModel(
     	SP3_SP3_VEC.clone()));
     console.log('Resonance: ', resonance_O.position,
@@ -89,7 +89,7 @@ function makeSAPA(model, props) {
     model.add(resonance_O);
     model.needsUpdates.push(resonance_O);
     
-    const carbonyl_C = new SP3Atom('C', 'C', -40, 0, 0);
+    const carbonyl_C = new SP3Atom('C', 'C', -40, 0);
     carbonyl_C.position.copy(
 	resonance_O.orbitals[1].orbitalToModel(SP3_SP3_VEC.clone()));
     carbonyl_C.setInsideOutness(0.5);
@@ -101,7 +101,7 @@ function makeSAPA(model, props) {
     model.add(carbonyl_C);
     model.needsUpdates.push(carbonyl_C);
     
-    const double_bond_O = new SP3Atom('O');
+    const double_bond_O = new SP3Atom('O', 'O');
     double_bond_O.position.copy(
 	carbonyl_C.orbitals[1].orbitalToModel(SP3_SP3_VEC.clone()));
     double_bond_O.setInsideOutness(0.5);
