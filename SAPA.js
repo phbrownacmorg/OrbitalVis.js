@@ -75,7 +75,7 @@ function makeSAPA(model, props) {
     model.add(reactive_O);
     model.needsUpdates.push(reactive_O);
 
-    const resonance_O = new SP3Atom('O', 'O', -30, -60);
+    const resonance_O = new SP3Atom('O', 'O'); //-30, -60);
     resonance_O.position.copy(reactive_O.orbitals[3].orbitalToModel(
     	SP3_SP3_VEC.clone()));
     console.log('Resonance: ', resonance_O.position,
@@ -89,7 +89,7 @@ function makeSAPA(model, props) {
     model.add(resonance_O);
     model.needsUpdates.push(resonance_O);
     
-    const carbonyl_C = new SP3Atom('C', 'C', -40, 0);
+    const carbonyl_C = new SP3Atom('C', 'C'); //, -40, 0);
     carbonyl_C.position.copy(
 	resonance_O.orbitals[1].orbitalToModel(SP3_SP3_VEC.clone()));
     carbonyl_C.setInsideOutness(0.5);
