@@ -3,24 +3,20 @@
 /* global Model */
 
 function setGeometry(props, renderer) {
-    let w; 
-    let h;
+    const panel = document.getElementById('displays');
+    let w = panel.clientWidth;
+    let h = panel.clientHeight;
+    console.log('w h:', w, h);
+    panel.classList.remove('horizontal', 'vertical');
+    panel.classList.add(props.layout);
     if (props.layout === 'vertical') {
-        $('#displays').css('flex-direction', 'row');
-        w = $('#displays').width()/2;
-        h = $('#displays').height();
+        w /= 2;
     }
-    else { // horizontal, which is default
-        $('#displays').css('flex-direction', 'column');
-        w = $('#displays').width();
-        h = $('#displays').height()/2;
+    else {
+        h /= 2;
     }
-    $('#displays').find('*').width(w);
-    $('#displays').find('*').height(h);
-    $('svg').attr('viewBox', props['viewBox']);
-
-    renderer.setSize($('#display-3D').children().width(), 
-                     $('#display-3D').children().height());
+    renderer.setSize(w, h);
+    document.getElementById('svg-elt').setAttribute('viewBox', props['viewBox']);
 }
 
 function reshapeCamera(camera, props) {
@@ -28,8 +24,8 @@ function reshapeCamera(camera, props) {
     let eyept = props.eye;
     camera.position.set(eyept[0], eyept[1], eyept[2]);
     camera.lookAt(0, 0, 0);
-    camera.aspect = $('#display-3D').children().width() / 
-                    $('#display-3D').children().height();
+    const canvas = document.getElementById('display-3D').firstElementChild;
+    camera.aspect = canvas.clientWidth / canvas.clientHeight;
     camera.near = props.near;
     camera.far = props.far;
     camera.updateProjectionMatrix();
@@ -45,55 +41,54 @@ $(document).ready(function() {
     const renderer = new THREE.WebGLRenderer();
     renderer.setClearColor(new THREE.Color( 0.4, 0.4, 0.4 ), 1.0);
     //renderer.sortObjects = false;
-    $('#display-3D').append(renderer.domElement);
+    document.getElementById('display-3D').appendChild(renderer.domElement);
     //renderer.domElement.style.setProperty('border', 'thin dashed blue');
 
     const camera = new THREE.PerspectiveCamera();
     camera.name = 'camera';
 
-    let reaction = 'defaults';
+    let reaction;
     let rockingAngle;
 
-    const changeReactionFn = function() {
-        //console.log(reaction);
-        //console.log(properties[reaction]);
-        setGeometry(properties[reaction], renderer);
-        reshapeCamera(camera, properties[reaction]);
-        for (let child of scene.children) {
-            if (child.name !== 'camera') {
-                scene.remove(child);
+    const changeReactionFn = function(newReaction) {
+        if ((newReaction !== reaction) && (newReaction !== 'none')) {
+            reaction = newReaction;
+            console.log(reaction);
+            //console.log(properties[reaction]);
+            setGeometry(properties[reaction], renderer);
+            reshapeCamera(camera, properties[reaction]);
+            for (let child of scene.children) {
+                if (child.name !== 'camera') {
+                    scene.remove(child);
+                }
             }
+            document.getElementById('svg-xfm').innerHTML = '';
+            scene.add(new Model(properties[reaction]));
+            rockingAngle = properties[reaction].rockingAngle;
+            t = 0;
         }
-        $('#svg-xfm').empty();
-        scene.add(new Model(properties[reaction]));
-        rockingAngle = properties[reaction].rockingAngle;
-        t = 0;
     };
-    changeReactionFn();
+    changeReactionFn('defaults');
     
-    $('#model-select').change(function(evt) {
-        if (evt.target.value !== 'none') {
-            reaction = evt.target.value;
-            changeReactionFn();
-        }
-    });
-    
-    $('#slider').on('input', function() {
-        //console.log('slider val = ' + $('#slider').val());
-        scene.children[0].setT($('#slider').val(), scene.quaternion.conjugate());
-    });
-    
-    let rocking = false;
-    $('#rock-button').click(function() {
-        rocking = !rocking;
-        if (rocking) {
-            $('#rock-button').val('Stop rocking');
-        }
-        else {
-            $('#rock-button').val('Rock model');
-        }
+    document.getElementById('model-select').addEventListener('change', function(evt) {
+        changeReactionFn(evt.target.value);
     });
 
+    document.getElementById('slider').addEventListener('input', function(evt) {
+        scene.children[0].setT(evt.target.value, scene.quaternion.conjugate())
+    });
+
+    let rocking = false;
+    document.getElementById('rock-button').addEventListener('click', function(evt) {
+        rocking = !rocking;
+        if (rocking) {
+            evt.target.value = 'Stop rocking';
+        }
+        else {
+            evt.target.value = 'Rock model';
+        }
+    });
+    
     let rt = 0;
     const dt = 0.04;
     function animate() {

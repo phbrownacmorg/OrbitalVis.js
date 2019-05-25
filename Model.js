@@ -1,4 +1,3 @@
-/* global $ */
 /* global THREE */
 
 /* global makeAcyl */
@@ -192,16 +191,17 @@ class Model extends THREE.Group {
     // Add the 2D elements to the DOM.  Clear out any cruft in the
     // place where they go first.
     updateDOM() {
-        $('#svg-xfm').empty();
+        const svgXfm = document.getElementById('svg-xfm');
+        svgXfm.innerHTML = "";
         for (let item of this.needsUpdates) {
     	    // Bonds should really be added to the DOM first, 
 	    //     so they lie behind the atoms/groups
             const elt = item.get2DElt();
             if (elt.tagName == 'text') {
-            	$('#svg-xfm').append(elt);
+                svgXfm.append(elt);
             }
             else {
-            	$('#svg-xfm').prepend(elt);
+                svgXfm.prepend(elt);
             }
             item.update2D(new THREE.Quaternion());
     	}
