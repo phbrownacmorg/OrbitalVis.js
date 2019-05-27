@@ -1,6 +1,28 @@
-/* global $ */
 /* global THREE */
 /* global Model */
+/* global reactionProperties */
+
+/**
+ * Execute some code when the DOM is ready.  If the DOM is already ready
+ * before this function is called, execute the code immediately.
+ * 
+ * Code is by {@link https://gomakethings.com/about/ Chris Ferdinandi}, 
+ * copied from {@link https://gomakethings.com/a-native-javascript-equivalent-of-jquerys-ready-method/}.
+ * 
+ * @param {function} fn - Function to be executed when the DOM is ready.
+ */
+var ready = function ( fn ) {
+    // Sanity check
+    if ( typeof fn !== 'function' ) return;
+
+    // If document is already loaded, run method
+    if ( document.readyState === 'complete'  ) {
+        return fn();
+    }
+    
+    // Otherwise, wait until document is loaded
+    document.addEventListener( 'DOMContentLoaded', fn, false );
+};
 
 function setGeometry(props, renderer) {
     const panel = document.getElementById('displays');
@@ -32,10 +54,10 @@ function reshapeCamera(camera, props) {
     //console.log(eyept, camera.position);
 }
 
-$(document).ready(function() {
+ready(function() {
     console.log('Doc ready');
-    const properties = $(document).data('properties');
-    console.log(properties);
+    const properties = reactionData();
+    console.log('Controller props:', properties.toString());
     const scene = new THREE.Scene();
 
     const renderer = new THREE.WebGLRenderer();
