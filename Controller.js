@@ -41,10 +41,13 @@ function setGeometry(props, renderer) {
     document.getElementById('svg-elt').setAttribute('viewBox', props['viewBox']);
 }
 
-function reshapeCamera(camera, props) {
+const eyept = new THREE.Vector3();
+const yAxis = new THREE.Vector3(0, 1, 0);
+function reshapeCamera(camera, props, angle = 0) {
     camera.fov = props.fov;
-    let eyept = props.eye;
-    camera.position.set(eyept[0], eyept[1], eyept[2]);
+    eyept.fromArray(props.eye);
+    eyept.applyAxisAngle(yAxis, angle);
+    camera.position.set(eyept.x, eyept.y, eyept.z);
     camera.lookAt(0, 0, 0);
     const canvas = document.getElementById('display-3D').firstElementChild;
     camera.aspect = canvas.clientWidth / canvas.clientHeight;
@@ -117,8 +120,10 @@ ready(function() {
         requestAnimationFrame( animate );
         if (rocking === true) {
             rt += dt;
+            reshapeCamera(camera, properties[reaction], rockingAngle * Math.sin(rt));
+            //camera.rotation.y = rockingAngle * Math.sin(rt);
+            //camera.updateProjectionMatrix();
         }
-        scene.rotation.y = rockingAngle * Math.sin(rt);
         renderer.render( scene, camera );
     }
     animate();
