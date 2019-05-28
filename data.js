@@ -25,7 +25,8 @@ function reactionData() {
 	props["EA2A-L"] = { reaction: "EA2A-L" };
 	props["EA2A-R"] = { reaction: "EA2A-R" };
 	props["SAPA"] = { fov: 30,
-	                 viewBox: "-1000 -200 2000 400" };
+                      viewBox: "-750 -150 1500 300",
+                      rockingAngle: Math.PI / 3 };
     props["SAPA-L"] = { reaction: "SAPA-L" };
 	props["SAPA-R"] = { reaction: "SAPA-R" };
 	props["SN1"] = { layout: "vertical",

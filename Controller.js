@@ -28,7 +28,7 @@ function setGeometry(props, renderer) {
     const panel = document.getElementById('displays');
     let w = panel.clientWidth;
     let h = panel.clientHeight;
-    console.log('w h:', w, h);
+    //console.log('w h:', w, h);
     panel.classList.remove('horizontal', 'vertical');
     panel.classList.add(props.layout);
     if (props.layout === 'vertical') {

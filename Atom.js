@@ -67,9 +67,9 @@ class AtomGroup extends THREE.Group {
 const S_RADIUS = 25;
 class SAtom extends AtomGroup {
     constructor(name, text=name, tx=0, ty=0) {
-	super(text, tx, ty);
-	let geom = new THREE.SphereGeometry(S_RADIUS, 64, 64);
-	this.add(new THREE.Mesh(geom, makeAtomMaterial(name)));
+	    super(text, tx, ty);
+	    let geom = new THREE.SphereGeometry(S_RADIUS, 64, 64);
+	    this.add(new THREE.Mesh(geom, makeAtomMaterial(name)));
     }
 }
 
