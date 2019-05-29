@@ -24,6 +24,12 @@ var ready = function ( fn ) {
     document.addEventListener( 'DOMContentLoaded', fn, false );
 };
 
+/**
+ * Lay out the panels for the 3-D and 2-D displays for the current reaction
+ * 
+ * @param {Object} props - parameters to be used with the current reaction
+ * @param {THREE.WebGLRenderer} renderer 
+ */
 function setGeometry(props, renderer) {
     const panel = document.getElementById('displays');
     let w = panel.clientWidth;
@@ -38,11 +44,24 @@ function setGeometry(props, renderer) {
         h /= 2;
     }
     renderer.setSize(w, h);
-    document.getElementById('svg-elt').setAttribute('viewBox', props['viewBox']);
+    document.getElementById('svg-elt').setAttribute('viewBox', 
+        props['viewBox']);
 }
 
 const eyept = new THREE.Vector3();
 const yAxis = new THREE.Vector3(0, 1, 0);
+/**
+ * Set the camera parameters for rendering the current reaction.  Also
+ * used for rocking the reaction, by adjusting the eyepoint to effectively
+ * rotate the camera about the look-at point.  This allows the scene to be
+ * rocked without disturbing the relationship between model space and world
+ * space, because the rocking is done by moving the camera instead.
+ * 
+ * @param {THREE.Camera} camera - camera to be used for rendering
+ * @param {*} props - parameters for the current reaction
+ * @param {*} angle - angle through which to rotate the camera.  
+ *      Used for rocking.
+ */
 function reshapeCamera(camera, props, angle = 0) {
     camera.fov = props.fov;
     eyept.fromArray(props.eye);
@@ -57,6 +76,9 @@ function reshapeCamera(camera, props, angle = 0) {
     //console.log(eyept, camera.position);
 }
 
+/**
+ * Stuff to do only once the DOM is ready.
+ */
 ready(function() {
     console.log('Doc ready');
     const properties = reactionData();
