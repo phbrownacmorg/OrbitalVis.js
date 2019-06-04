@@ -197,7 +197,7 @@ function makeSAPA(model, props) {
         reactive_O.position.lerpVectors(reactive_O.start, reactive_O.end, oxyT);
         reactive_O.setZeroOneAngle(zeroOneAngle, 1);
         reactive_O.rotation.set(0, 0, (reactive_O.zeroOneAngle / 2) + (Math.PI / 2)
-            (model.xSign * (Math.PI / 2)));
+            + (model.xSign * (Math.PI / 2)));
 
         // The resonance oxygen forms a double bond with the carbonyl C
         resonance_O.setInsideOutness(oxyT / 2);
