@@ -41,7 +41,7 @@ function reactionData() {
     props["SAPA"] = {
         fov: 30,
         viewBox: "-750 -150 1500 300",
-        rockingAngle: Math.PI / 3
+        rockingAngle: Math.PI / 8
     };
     props["SAPA-L"] = { reaction: "SAPA-L" };
     props["SAPA-R"] = { reaction: "SAPA-R" };
